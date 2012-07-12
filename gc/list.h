@@ -1,13 +1,13 @@
 #ifndef GC_LIST_H
 #define GC_LIST_H
 
-#ifndef GC_MALLOC_FAILED
-#define GC_MALLOC_FAILED(...)
-#endif
-
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
+
+#ifndef GC_ERROR
+#define GC_ERROR(errnum, ...)
+#endif
 
 #define gc_list_begin(list)             ((list)->end.next)
 #define gc_list_end(list)               (&(list)->end)
@@ -237,7 +237,7 @@ static inline C##_pos_t C##_insert_before(C##_t *list, C##_pos_t pos, T val) \
     struct C##_node *node; \
 \
     if (!(node = malloc(sizeof(*node)))) { \
-        GC_MALLOC_FAILED("Allocating memory for list node failed"); \
+        GC_ERROR(errno, "Allocating memory for list node failed"); \
         return NULL; \
     } \
 \
