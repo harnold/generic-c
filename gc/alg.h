@@ -6,6 +6,11 @@
          (pos) != C##_range_end(range); \
          C##_forward(&(pos)))
 
+#define gc_for_each_pos_rev(C, pos, tmp, range) \
+    for ((tmp) = C##_range_end(range); \
+         (tmp) != C##_range_begin(range) ? (pos) = C##_prev(tmp), 1 : 0; \
+         C##_backward(&(tmp)))
+
 #define gc_for_each_pos_indexed(C, i, pos, range) \
     for ((pos) = C##_range_begin(range), (i) = 0; \
          (pos) != C##_range_end(range); \
