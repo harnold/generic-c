@@ -85,10 +85,10 @@ static inline void C##_forward(C##_pos_t *pos); \
 static inline void C##_backward(C##_pos_t *pos); \
 \
 static inline C##_pos_t C##_insert(C##_t *list, C##_pos_t pos, T val); \
-static inline C##_pos_t C##_insert_front(C##_t *list, T val); \
-static inline C##_pos_t C##_insert_back(C##_t *list, T val); \
-static inline void C##_release(C##_t *list, C##_pos_t pos); \
-static inline void C##_remove(C##_t *list, C##_pos_t pos); \
+static inline void C##_insert_front(C##_t *list, T val); \
+static inline void C##_insert_back(C##_t *list, T val); \
+static inline C##_pos_t C##_release(C##_t *list, C##_pos_t pos); \
+static inline C##_pos_t C##_remove(C##_t *list, C##_pos_t pos); \
 static inline void C##_remove_front(C##_t *list); \
 static inline void C##_remove_back(C##_t *list); \
 static inline void C##_clear(C##_t *list); \
@@ -240,32 +240,36 @@ static inline C##_pos_t C##_insert(C##_t *list, C##_pos_t pos, T val) \
     return node; \
 } \
 \
-static inline C##_pos_t C##_insert_front(C##_t *list, T val) \
+static inline void C##_insert_front(C##_t *list, T val) \
 { \
-    return C##_insert(list, gc_list_begin(list), val); \
+    C##_insert(list, gc_list_begin(list), val); \
 } \
 \
-static inline C##_pos_t C##_insert_back(C##_t *list, T val) \
+static inline void C##_insert_back(C##_t *list, T val) \
 { \
-    return C##_insert(list, gc_list_end(list), val); \
+    C##_insert(list, gc_list_end(list), val); \
 } \
 \
-static inline void C##_release(C##_t *list, C##_pos_t pos) \
+static inline C##_pos_t C##_release(C##_t *list, C##_pos_t pos) \
 { \
+    C##_pos_t next; \
+\
     assert(pos != gc_list_end(list)); \
 \
+    next = pos->next;
     C##_unlink_node(pos); \
     free(pos); \
+    return next; \
 } \
 \
-static inline void C##_remove(C##_t *list, C##_pos_t pos) \
+static inline C##_pos_t C##_remove(C##_t *list, C##_pos_t pos) \
 { \
     assert(pos != gc_list_end(list)); \
 \
     if (list->destroy_elem) \
         list->destroy_elem(pos->elem); \
 \
-    C##_release(list, pos); \
+    return C##_release(list, pos); \
 } \
 \
 static inline void C##_remove_front(C##_t *list) \
