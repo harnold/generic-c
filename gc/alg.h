@@ -12,7 +12,7 @@
          C##_forward(&(pos)), (i)++)
 
 #define gc_for_each_pos_safe(C, pos, tmp, range) \
-    for ((pos) = C##_range_begin(range), (tmp) = C##_next(pos);
+    for ((pos) = C##_range_begin(range), (tmp) = C##_next(pos); \
          (pos) != C##_range_end(range); \
          (pos) = (tmp), C##_forward(&(tmp)))
 
