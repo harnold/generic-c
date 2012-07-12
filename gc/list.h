@@ -84,8 +84,7 @@ static inline C##_pos_t C##_prev(C##_pos_t pos); \
 static inline void C##_forward(C##_pos_t *pos); \
 static inline void C##_backward(C##_pos_t *pos); \
 \
-static inline C##_pos_t C##_insert_before(C##_t *list, C##_pos_t pos, T val); \
-static inline C##_pos_t C##_insert_after(C##_t *list, C##_pos_t pos, T val); \
+static inline C##_pos_t C##_insert(C##_t *list, C##_pos_t pos, T val); \
 static inline C##_pos_t C##_insert_front(C##_t *list, T val); \
 static inline C##_pos_t C##_insert_back(C##_t *list, T val); \
 static inline void C##_release(C##_t *list, C##_pos_t pos); \
@@ -94,12 +93,10 @@ static inline void C##_remove_front(C##_t *list); \
 static inline void C##_remove_back(C##_t *list); \
 static inline void C##_clear(C##_t *list); \
 \
-static inline void C##_move_before(C##_t *dest_list, C##_pos_t dest_pos, C##_t *src_list, C##_pos_t src_pos); \
-static inline void C##_move_after(C##_t *dest_list, C##_pos_t dest_pos, C##_t *src_list, C##_pos_t src_pos); \
+static inline void C##_move(C##_t *dest_list, C##_pos_t dest_pos, C##_t *src_list, C##_pos_t src_pos); \
 static inline void C##_move_front(C##_t *dest_list, C##_t *src_list, C##_pos_t pos); \
 static inline void C##_move_back(C##_t *dest_list, C##_t *src_list, C##_pos_t pos); \
-static inline void C##_splice_before(C##_t *dest_list, C##_pos_t pos, C##_t *src_list, C##_range_t range); \
-static inline void C##_splice_after(C##_t *dest_list, C##_pos_t pos, C##_t *src_list, C##_range_t range); \
+static inline void C##_splice(C##_t *dest_list, C##_pos_t pos, C##_t *src_list, C##_range_t range); \
 static inline void C##_splice_front(C##_t *dest_list, C##_t *src_list, C##_range_t range); \
 static inline void C##_splice_back(C##_t *dest_list, C##_t *src_list, C##_range_t range);
 
@@ -228,7 +225,7 @@ static inline void C##_backward(C##_pos_t *pos) \
     *pos = (*pos)->prev; \
 } \
 \
-static inline C##_pos_t C##_insert_before(C##_t *list, C##_pos_t pos, T val) \
+static inline C##_pos_t C##_insert(C##_t *list, C##_pos_t pos, T val) \
 { \
     struct C##_node *node; \
 \
@@ -243,20 +240,14 @@ static inline C##_pos_t C##_insert_before(C##_t *list, C##_pos_t pos, T val) \
     return node; \
 } \
 \
-static inline C##_pos_t C##_insert_after(C##_t *list, C##_pos_t pos, T val) \
-{ \
-    assert(pos != gc_list_end(list)); \
-    return C##_insert_before(list, pos->next, val); \
-} \
-\
 static inline C##_pos_t C##_insert_front(C##_t *list, T val) \
 { \
-    return C##_insert_before(list, gc_list_begin(list), val); \
+    return C##_insert(list, gc_list_begin(list), val); \
 } \
 \
 static inline C##_pos_t C##_insert_back(C##_t *list, T val) \
 { \
-    return C##_insert_before(list, gc_list_end(list), val); \
+    return C##_insert(list, gc_list_end(list), val); \
 } \
 \
 static inline void C##_release(C##_t *list, C##_pos_t pos) \
@@ -304,7 +295,7 @@ static inline void C##_clear(C##_t *list) \
     init_##C(list, list->destroy_elem); \
 } \
 \
-static inline void C##_move_before(C##_t *dest_list, C##_pos_t dest_pos, C##_t *src_list, C##_pos_t src_pos) \
+static inline void C##_move(C##_t *dest_list, C##_pos_t dest_pos, C##_t *src_list, C##_pos_t src_pos) \
 { \
     assert(src_pos != gc_list_end(src_list)); \
 \
@@ -313,46 +304,33 @@ static inline void C##_move_before(C##_t *dest_list, C##_pos_t dest_pos, C##_t *
     C##_link_nodes(src_pos, dest_pos); \
 } \
 \
-static inline void C##_move_after(C##_t *dest_list, C##_pos_t dest_pos, C##_t *src_list, C##_pos_t src_pos) \
-{ \
-    assert(src_pos != gc_list_end(src_list)); \
-    assert(dest_pos != gc_list_end(dest_list)); \
-    C##_move_before(dest_list, dest_pos->next, src_list, src_pos); \
-} \
-\
 static inline void C##_move_front(C##_t *dest_list, C##_t *src_list, C##_pos_t pos) \
 { \
     assert(pos != gc_list_end(src_list)); \
-    C##_move_before(dest_list, gc_list_begin(dest_list), src_list, pos); \
+    C##_move(dest_list, gc_list_begin(dest_list), src_list, pos); \
 } \
 \
 static inline void C##_move_back(C##_t *dest_list, C##_t *src_list, C##_pos_t pos) \
 { \
     assert(pos != gc_list_end(src_list)); \
-    C##_move_before(dest_list, gc_list_end(dest_list), src_list, pos); \
+    C##_move(dest_list, gc_list_end(dest_list), src_list, pos); \
 } \
 \
-static inline void C##_splice_before(C##_t *dest_list, C##_pos_t pos, C##_t *src_list, C##_range_t range) \
+static inline void C##_splice(C##_t *dest_list, C##_pos_t pos, C##_t *src_list, C##_range_t range) \
 { \
     C##_link_nodes(range.end->prev, pos); \
     C##_link_nodes(range.begin->prev, range.end); \
     C##_link_nodes(pos->prev, range.begin); \
 } \
 \
-static inline void C##_splice_after(C##_t *dest_list, C##_pos_t pos, C##_t *src_list, C##_range_t range) \
-{ \
-    assert(pos != gc_list_end(dest_list)); \
-    C##_splice_before(dest_list, pos->next, src_list, range); \
-} \
-\
 static inline void C##_splice_front(C##_t *dest_list, C##_t *src_list, C##_range_t range) \
 { \
-    C##_splice_before(dest_list, gc_list_begin(dest_list), src_list, range); \
+    C##_splice(dest_list, gc_list_begin(dest_list), src_list, range); \
 } \
 \
 static inline void C##_splice_back(C##_t *dest_list, C##_t *src_list, C##_range_t range) \
 { \
-    C##_splice_before(dest_list, gc_list_end(dest_list), src_list, range); \
+    C##_splice(dest_list, gc_list_end(dest_list), src_list, range); \
 }
 
 #endif
