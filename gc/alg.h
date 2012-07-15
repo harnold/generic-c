@@ -23,16 +23,16 @@
 
 #define gc_swap(_C, pos1, pos2) \
     do { \
-        _C##_elem_t tmp = _C##_get(pos1); \
+        _C##_elem_t _tmp = _C##_get(pos1); \
         _C##_set(pos1, _C##_get(pos2)); \
-        _C##_set(pos2, tmp); \
+        _C##_set(pos2, _tmp); \
     } while (0)
 
 #define gc_for_each(_C, range, f) \
     do { \
-        _C##_pos_t pos; \
-        gc_for_each_pos(_C, pos, range) \
-            (f)(_C##_get(pos)); \
+        _C##_pos_t _pos; \
+        gc_for_each_pos(_C, _pos, range) \
+            (f)(_C##_get(_pos)); \
     } while (0)
 
 #define gc_find(_C, range, val, pos) \
@@ -61,80 +61,80 @@
 
 #define gc_count(_C, range, val, n) \
     do { \
-        _C##_pos_t pos; \
+        _C##_pos_t _pos; \
         *(n) = 0; \
-        gc_for_each_pos(_C, *(pos), range) { \
-            if (_C##_get(*(pos)) == (val)) \
+        gc_for_each_pos(_C, *(_pos), range) { \
+            if (_C##_get(*(_pos)) == (val)) \
                 (*(n))++; \
         } \
     } while (0)
 
 #define gc_count_eq(_C, range, eq, val, n) \
     do { \
-        _C##_pos_t pos; \
+        _C##_pos_t _pos; \
         *(n) = 0; \
-        gc_for_each_pos(_C, *(pos), range) { \
-            if ((eq)(_C##_get(*(pos)), (val))) \
+        gc_for_each_pos(_C, *(_pos), range) { \
+            if ((eq)(_C##_get(*(_pos)), (val))) \
                 (*(n))++; \
         } \
     } while (0)
 
 #define gc_count_if(_C, range, pred, n) \
     do { \
-        _C##_pos_t pos; \
+        _C##_pos_t _pos; \
         *(n) = 0; \
-        gc_for_each_pos(_C, *(pos), range) { \
-            if ((pred)(_C##_get(*(pos)))) \
+        gc_for_each_pos(_C, *(_pos), range) { \
+            if ((pred)(_C##_get(*(_pos)))) \
                 (*(n))++; \
         } \
     } while (0)
 
 #define gc_copy_front(_C1, range, _C2, cont, copy_elem) \
     do { \
-        _C1##_pos_t pos; \
-        gc_for_each_pos(_C1, pos, range) { \
-            _C2##_insert_front(cont, (copy_elem)(_C1##_get(pos))); \
+        _C1##_pos_t _pos; \
+        gc_for_each_pos(_C1, _pos, range) { \
+            _C2##_insert_front(cont, (copy_elem)(_C1##_get(_pos))); \
         } \
     } while (0)
 
 #define gc_copy_front(_C1, range, _C2, cont, copy_elem) \
     do { \
-        _C1##_pos_t pos; \
-        gc_for_each_pos(_C1, pos, range) { \
-            _C2##_insert_front(cont, (copy_elem)(_C1##_get(pos))); \
+        _C1##_pos_t _pos; \
+        gc_for_each_pos(_C1, _pos, range) { \
+            _C2##_insert_front(cont, (copy_elem)(_C1##_get(_pos))); \
         } \
     } while (0)
 
 #define gc_copy_before(_C1, range, _C2, cont, pos, copy_elem) \
     do { \
-        _C1##_pos_t pos; \
-        gc_for_each_pos(_C1, pos, range) { \
-            _C2##_insert_before(cont, pos, (copy_elem)(_C1##_get(pos))); \
+        _C1##_pos_t _pos; \
+        gc_for_each_pos(_C1, _pos, range) { \
+            _C2##_insert_before(cont, _pos, (copy_elem)(_C1##_get(_pos))); \
         } \
     } while (0)
 
 #define gc_copy_after(_C1, range, _C2, cont, pos, copy_elem) \
     do { \
-        _C1##_pos_t pos; \
-        gc_for_each_pos(_C1, pos, range) { \
-            _C2##_insert_after(cont, pos, (copy_elem)(_C1##_get(pos))); \
+        _C1##_pos_t _pos; \
+        gc_for_each_pos(_C1, _pos, range) { \
+            _C2##_insert_after(cont, _pos, (copy_elem)(_C1##_get(_pos))); \
         } \
     } while (0)
 
 #define gc_fill(_C, range, val) \
     do { \
-        _C##_pos_t pos; \
-        gc_for_each_pos(_C, pos, range) { \
-            _C##_set(pos, val); \
+        _C##_pos_t _pos; \
+        gc_for_each_pos(_C, _pos, range) { \
+            _C##_set(_pos, val); \
         } \
     } while(0)
 
 #define gc_generate(_C, range, generate_elem) \
     do { \
-        int i; \
-        _C##_pos_t pos; \
-        gc_for_each_pos_indexed(_C, i, pos, range) { \
-            _C##_set(pos, (generate_elem)(i)) \
+        int _i; \
+        _C##_pos_t _pos; \
+        gc_for_each_pos_indexed(_C, _i, _pos, range) { \
+            _C##_set(_pos, (generate_elem)(_i)) \
         } \
     } while (0)
 
