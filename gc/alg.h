@@ -97,11 +97,11 @@
         } \
     } while (0)
 
-#define gc_copy_front(_C1, range, _C2, cont, copy_elem) \
+#define gc_copy_back(_C1, range, _C2, cont, copy_elem) \
     do { \
         _C1##_pos_t _pos; \
         gc_for_each_pos(_C1, _pos, range) { \
-            _C2##_insert_front(cont, (copy_elem)(_C1##_get(_pos))); \
+            _C2##_insert_back(cont, (copy_elem)(_C1##_get(_pos))); \
         } \
     } while (0)
 
