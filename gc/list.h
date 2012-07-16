@@ -272,7 +272,7 @@ _funspecs _C##_pos_t _C##_release(_C##_t *list, _C##_pos_t pos) \
 \
     assert(pos != gc_list_end(list)); \
 \
-    next = pos->next;
+    next = pos->next; \
     _C##_unlink_node(pos); \
     free(pos); \
     return next; \
