@@ -102,8 +102,8 @@ _funspecs _C##_pos_t _C##_prev(_C##_pos_t pos);  \
 _funspecs void _C##_forward(_C##_pos_t *pos);  \
 _funspecs void _C##_backward(_C##_pos_t *pos);  \
 _funspecs _C##_pos_t _C##_insert(_C##_t *list, _C##_pos_t pos, _T val);  \
-_funspecs void _C##_insert_front(_C##_t *list, _T val);  \
-_funspecs void _C##_insert_back(_C##_t *list, _T val);  \
+_funspecs _C##_pos_t _C##_insert_front(_C##_t *list, _T val);  \
+_funspecs _C##_pos_t _C##_insert_back(_C##_t *list, _T val);  \
 _funspecs _C##_pos_t _C##_release(_C##_t *list, _C##_pos_t pos);  \
 _funspecs _C##_pos_t _C##_remove(_C##_t *list, _C##_pos_t pos);  \
 _funspecs void _C##_remove_front(_C##_t *list);  \
@@ -256,14 +256,14 @@ _funspecs _C##_pos_t _C##_insert(_C##_t *list, _C##_pos_t pos, _T val) \
     return node; \
 } \
 \
-_funspecs void _C##_insert_front(_C##_t *list, _T val) \
+_funspecs _C##_pos_t _C##_insert_front(_C##_t *list, _T val) \
 { \
-    _C##_insert(list, gc_list_begin(list), val); \
+    return _C##_insert(list, gc_list_begin(list), val); \
 } \
 \
-_funspecs void _C##_insert_back(_C##_t *list, _T val) \
+_funspecs _C##_pos_t _C##_insert_back(_C##_t *list, _T val) \
 { \
-    _C##_insert(list, gc_list_end(list), val); \
+    return _C##_insert(list, gc_list_end(list), val); \
 } \
 \
 _funspecs _C##_pos_t _C##_release(_C##_t *list, _C##_pos_t pos) \
@@ -271,7 +271,7 @@ _funspecs _C##_pos_t _C##_release(_C##_t *list, _C##_pos_t pos) \
     _C##_pos_t next; \
 \
     assert(pos != gc_list_end(list)); \
-\
+    \
     next = pos->next; \
     _C##_unlink_node(pos); \
     free(pos); \
