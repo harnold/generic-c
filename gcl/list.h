@@ -5,38 +5,38 @@
  * as published at http://www.boost.org/LICENSE_1_0.txt.
  */
 
-#ifndef GC_LIST_H
-#define GC_LIST_H
+#ifndef GCL_LIST_H
+#define GCL_LIST_H
 
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
-#ifndef GC_ERROR
-#define GC_ERROR(errnum, ...)
+#ifndef GCL_ERROR
+#define GCL_ERROR(errnum, ...)
 #endif
 
-#define gc_list_begin(list)             ((list)->end.next)
-#define gc_list_end(list)               (&(list)->end)
-#define gc_list_all(list)               { gc_list_begin(list), gc_list_end(list) }
-#define gc_list_range(begin, end)       { begin, end }
-#define gc_list_range_begin(range)      ((range).begin)
-#define gc_list_range_end(range)        ((range).end)
-#define gc_list_range_from_pos(list, pos) { pos, gc_list_end(list) }
-#define gc_list_range_to_pos(list, pos) { gc_list_begin(list), pos }
-#define gc_list_range_empty(range)      ((range).begin == (range).end)
+#define gcl_list_begin(list)             ((list)->end.next)
+#define gcl_list_end(list)               (&(list)->end)
+#define gcl_list_all(list)               { gcl_list_begin(list), gcl_list_end(list) }
+#define gcl_list_range(begin, end)       { begin, end }
+#define gcl_list_range_begin(range)      ((range).begin)
+#define gcl_list_range_end(range)        ((range).end)
+#define gcl_list_range_from_pos(list, pos) { pos, gcl_list_end(list) }
+#define gcl_list_range_to_pos(list, pos) { gcl_list_begin(list), pos }
+#define gcl_list_range_empty(range)      ((range).begin == (range).end)
 
-#define gc_list_for_each_node(node, list) \
-    for ((node) = gc_list_begin(list); \
-         (node) != gc_list_end(list); \
+#define gcl_list_for_each_node(node, list) \
+    for ((node) = gcl_list_begin(list); \
+         (node) != gcl_list_end(list); \
          (node) = (node)->next)
 
-#define gc_list_for_each_node_safe(node, tmp, list) \
-    for ((node) = gc_list_begin(list), (tmp) = (node)->next; \
-         (node) != gc_list_end(list); \
+#define gcl_list_for_each_node_safe(node, tmp, list) \
+    for ((node) = gcl_list_begin(list), (tmp) = (node)->next; \
+         (node) != gcl_list_end(list); \
          (node) = (tmp), (tmp) = (node)->next)
 
-#define GC_GENERATE_LIST_TYPES(_C, _T) \
+#define GCL_GENERATE_LIST_TYPES(_C, _T) \
 \
 typedef struct _C _C##_t; \
 typedef struct _C##_node *_C##_pos_t; \
@@ -59,25 +59,25 @@ struct _C { \
     void (*destroy_elem)(_T); \
 };
 
-#define GC_GENERATE_LIST_FUNCTIONS_STATIC(_C, _T) \
-    GC_GENERATE_LIST_FUNCTION_DEFS(_C, _T, static)
+#define GCL_GENERATE_LIST_FUNCTIONS_STATIC(_C, _T) \
+    GCL_GENERATE_LIST_FUNCTION_DEFS(_C, _T, static)
 
-#define GC_GENERATE_LIST_FUNCTIONS_STATIC_INLINE(_C, _T) \
-    GC_GENERATE_LIST_FUNCTION_DEFS(_C, _T, static inline)
+#define GCL_GENERATE_LIST_FUNCTIONS_STATIC_INLINE(_C, _T) \
+    GCL_GENERATE_LIST_FUNCTION_DEFS(_C, _T, static inline)
 
-#define GC_GENERATE_LIST_FUNCTIONS_EXTERN_H(_C, _T) \
-    GC_GENERATE_LIST_FUNCTION_DECLS(_C, _T, )
+#define GCL_GENERATE_LIST_FUNCTIONS_EXTERN_H(_C, _T) \
+    GCL_GENERATE_LIST_FUNCTION_DECLS(_C, _T, )
 
-#define GC_GENERATE_LIST_FUNCTIONS_EXTERN_C(_C, _T) \
-    GC_GENERATE_LIST_FUNCTION_DEFS(_C, _T, )
+#define GCL_GENERATE_LIST_FUNCTIONS_EXTERN_C(_C, _T) \
+    GCL_GENERATE_LIST_FUNCTION_DEFS(_C, _T, )
 
-#define GC_GENERATE_LIST_FUNCTIONS_EXTERN_INLINE_H(_C, _T) \
-    GC_GENERATE_LIST_FUNCTION_DEFS(_C, _T, inline)
+#define GCL_GENERATE_LIST_FUNCTIONS_EXTERN_INLINE_H(_C, _T) \
+    GCL_GENERATE_LIST_FUNCTION_DEFS(_C, _T, inline)
 
-#define GC_GENERATE_LIST_FUNCTIONS_EXTERN_INLINE_C(_C, _T) \
-    GC_GENERATE_LIST_FUNCTION_DECLS(_C, _T, )
+#define GCL_GENERATE_LIST_FUNCTIONS_EXTERN_INLINE_C(_C, _T) \
+    GCL_GENERATE_LIST_FUNCTION_DECLS(_C, _T, )
 
-#define GC_GENERATE_LIST_FUNCTION_DECLS(_C, _T, _funspecs) \
+#define GCL_GENERATE_LIST_FUNCTION_DECLS(_C, _T, _funspecs) \
 \
 _funspecs void init_##_C(struct _C *list, void (*destroy_elem)(_T));  \
 _funspecs void destroy_##_C(struct _C *list);  \
@@ -116,7 +116,7 @@ _funspecs void _C##_splice(_C##_t *dest_list, _C##_pos_t pos, _C##_t *src_list, 
 _funspecs void _C##_splice_front(_C##_t *dest_list, _C##_t *src_list, _C##_range_t range);  \
 _funspecs void _C##_splice_back(_C##_t *dest_list, _C##_t *src_list, _C##_range_t range);
 
-#define GC_GENERATE_LIST_FUNCTION_DEFS(_C, _T, _funspecs) \
+#define GCL_GENERATE_LIST_FUNCTION_DEFS(_C, _T, _funspecs) \
 \
 _funspecs void init_##_C(struct _C *list, void (*destroy_elem)(_T)) \
 { \
@@ -130,11 +130,11 @@ _funspecs void destroy_##_C(struct _C *list) \
     struct _C##_node *node, *tmp; \
 \
     if (list->destroy_elem) { \
-        gc_list_for_each_node(node, list) \
+        gcl_list_for_each_node(node, list) \
             list->destroy_elem(node->elem); \
     } \
 \
-    gc_list_for_each_node_safe(node, tmp, list) \
+    gcl_list_for_each_node_safe(node, tmp, list) \
         free(node); \
 } \
 \
@@ -151,64 +151,64 @@ _funspecs void _C##_unlink_node(struct _C##_node* node) \
 \
 _funspecs _C##_pos_t _C##_begin(_C##_t *list) \
 { \
-    return gc_list_begin(list); \
+    return gcl_list_begin(list); \
 } \
 \
 _funspecs _C##_pos_t _C##_end(_C##_t *list) \
 { \
-    return gc_list_end(list); \
+    return gcl_list_end(list); \
 } \
 \
 _funspecs _C##_range_t _C##_all(_C##_t *list) \
 { \
-    return (struct _C##_range) gc_list_all(list); \
+    return (struct _C##_range) gcl_list_all(list); \
 } \
 \
 _funspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end) \
 { \
-    return (struct _C##_range) gc_list_range(begin, end); \
+    return (struct _C##_range) gcl_list_range(begin, end); \
 } \
 \
 _funspecs _C##_pos_t _C##_range_begin(_C##_range_t range) \
 { \
-    return gc_list_range_begin(range); \
+    return gcl_list_range_begin(range); \
 } \
 \
 _funspecs _C##_pos_t _C##_range_end(_C##_range_t range) \
 { \
-    return gc_list_range_end(range); \
+    return gcl_list_range_end(range); \
 } \
 \
 _funspecs _C##_range_t _C##_range_from_pos(_C##_t *list, _C##_pos_t pos) \
 { \
-    return (struct _C##_range) gc_list_range_from_pos(list, pos); \
+    return (struct _C##_range) gcl_list_range_from_pos(list, pos); \
 } \
 \
 _funspecs _C##_range_t _C##_range_to_pos(_C##_t *list, _C##_pos_t pos) \
 { \
-    return (struct _C##_range) gc_list_range_to_pos(list, pos); \
+    return (struct _C##_range) gcl_list_range_to_pos(list, pos); \
 } \
 \
 _funspecs bool _C##_range_empty(_C##_range_t range) \
 { \
-    return gc_list_range_empty(range); \
+    return gcl_list_range_empty(range); \
 } \
 \
 _funspecs bool _C##_empty(_C##_t *list) \
 { \
-    return gc_list_begin(list) == gc_list_end(list); \
+    return gcl_list_begin(list) == gcl_list_end(list); \
 } \
 \
 _funspecs _T _C##_front(_C##_t *list) \
 { \
     assert(!_C##_empty(list)); \
-    return gc_list_begin(list)->elem; \
+    return gcl_list_begin(list)->elem; \
 } \
 \
 _funspecs _T _C##_back(_C##_t *list) \
 { \
     assert(!_C##_empty(list)); \
-    return gc_list_end(list)->prev->elem; \
+    return gcl_list_end(list)->prev->elem; \
 } \
 \
 _funspecs _T _C##_get(_C##_pos_t pos) \
@@ -246,7 +246,7 @@ _funspecs _C##_pos_t _C##_insert(_C##_t *list, _C##_pos_t pos, _T val) \
     struct _C##_node *node; \
 \
     if (!(node = malloc(sizeof(*node)))) { \
-        GC_ERROR(errno, "Allocating memory for list node failed"); \
+        GCL_ERROR(errno, "Allocating memory for list node failed"); \
         return NULL; \
     } \
 \
@@ -258,19 +258,19 @@ _funspecs _C##_pos_t _C##_insert(_C##_t *list, _C##_pos_t pos, _T val) \
 \
 _funspecs _C##_pos_t _C##_insert_front(_C##_t *list, _T val) \
 { \
-    return _C##_insert(list, gc_list_begin(list), val); \
+    return _C##_insert(list, gcl_list_begin(list), val); \
 } \
 \
 _funspecs _C##_pos_t _C##_insert_back(_C##_t *list, _T val) \
 { \
-    return _C##_insert(list, gc_list_end(list), val); \
+    return _C##_insert(list, gcl_list_end(list), val); \
 } \
 \
 _funspecs _C##_pos_t _C##_release(_C##_t *list, _C##_pos_t pos) \
 { \
     _C##_pos_t next; \
 \
-    assert(pos != gc_list_end(list)); \
+    assert(pos != gcl_list_end(list)); \
     \
     next = pos->next; \
     _C##_unlink_node(pos); \
@@ -280,7 +280,7 @@ _funspecs _C##_pos_t _C##_release(_C##_t *list, _C##_pos_t pos) \
 \
 _funspecs _C##_pos_t _C##_remove(_C##_t *list, _C##_pos_t pos) \
 { \
-    assert(pos != gc_list_end(list)); \
+    assert(pos != gcl_list_end(list)); \
 \
     if (list->destroy_elem) \
         list->destroy_elem(pos->elem); \
@@ -291,13 +291,13 @@ _funspecs _C##_pos_t _C##_remove(_C##_t *list, _C##_pos_t pos) \
 _funspecs void _C##_remove_front(_C##_t *list) \
 { \
     assert(!_C##_empty(list)); \
-    _C##_remove(list, gc_list_begin(list)); \
+    _C##_remove(list, gcl_list_begin(list)); \
 } \
 \
 _funspecs void _C##_remove_back(_C##_t *list) \
 { \
     assert(!_C##_empty(list)); \
-    _C##_remove(list, gc_list_end(list)->prev); \
+    _C##_remove(list, gcl_list_end(list)->prev); \
 } \
 \
 _funspecs void _C##_clear(_C##_t *list) \
@@ -305,11 +305,11 @@ _funspecs void _C##_clear(_C##_t *list) \
     struct _C##_node *node, *tmp; \
 \
     if (list->destroy_elem) { \
-        gc_list_for_each_node(node, list) \
+        gcl_list_for_each_node(node, list) \
             list->destroy_elem(node->elem); \
     } \
 \
-    gc_list_for_each_node_safe(node, tmp, list) \
+    gcl_list_for_each_node_safe(node, tmp, list) \
         free(node); \
 \
     init_##_C(list, list->destroy_elem); \
@@ -317,7 +317,7 @@ _funspecs void _C##_clear(_C##_t *list) \
 \
 _funspecs void _C##_move(_C##_t *dest_list, _C##_pos_t dest_pos, _C##_t *src_list, _C##_pos_t src_pos) \
 { \
-    assert(src_pos != gc_list_end(src_list)); \
+    assert(src_pos != gcl_list_end(src_list)); \
 \
     _C##_unlink_node(src_pos); \
     _C##_link_nodes(dest_pos->prev, src_pos); \
@@ -326,14 +326,14 @@ _funspecs void _C##_move(_C##_t *dest_list, _C##_pos_t dest_pos, _C##_t *src_lis
 \
 _funspecs void _C##_move_front(_C##_t *dest_list, _C##_t *src_list, _C##_pos_t pos) \
 { \
-    assert(pos != gc_list_end(src_list)); \
-    _C##_move(dest_list, gc_list_begin(dest_list), src_list, pos); \
+    assert(pos != gcl_list_end(src_list)); \
+    _C##_move(dest_list, gcl_list_begin(dest_list), src_list, pos); \
 } \
 \
 _funspecs void _C##_move_back(_C##_t *dest_list, _C##_t *src_list, _C##_pos_t pos) \
 { \
-    assert(pos != gc_list_end(src_list)); \
-    _C##_move(dest_list, gc_list_end(dest_list), src_list, pos); \
+    assert(pos != gcl_list_end(src_list)); \
+    _C##_move(dest_list, gcl_list_end(dest_list), src_list, pos); \
 } \
 \
 _funspecs void _C##_splice(_C##_t *dest_list, _C##_pos_t pos, _C##_t *src_list, _C##_range_t range) \
@@ -345,12 +345,12 @@ _funspecs void _C##_splice(_C##_t *dest_list, _C##_pos_t pos, _C##_t *src_list, 
 \
 _funspecs void _C##_splice_front(_C##_t *dest_list, _C##_t *src_list, _C##_range_t range) \
 { \
-    _C##_splice(dest_list, gc_list_begin(dest_list), src_list, range); \
+    _C##_splice(dest_list, gcl_list_begin(dest_list), src_list, range); \
 } \
 \
 _funspecs void _C##_splice_back(_C##_t *dest_list, _C##_t *src_list, _C##_range_t range) \
 { \
-    _C##_splice(dest_list, gc_list_end(dest_list), src_list, range); \
+    _C##_splice(dest_list, gcl_list_end(dest_list), src_list, range); \
 }
 
 #endif
