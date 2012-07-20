@@ -162,9 +162,9 @@ _funspecs size_t _##_C##_max_capacity(void) \
 \
 _funspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
 { \
-    _T *data; \
-\
     assert(n <= _##_C##_max_capacity()); \
+\
+    _T *data; \
 \
     if (n < GCL_VECTOR_INITIAL_CAPACITY) \
         n = GCL_VECTOR_INITIAL_CAPACITY; \
@@ -186,10 +186,10 @@ static inline size_t _##_C##_max(size_t a, size_t b) \
 \
 _funspecs _T *_##_C##_grow(struct _C *vec, size_t n) \
 { \
+    assert(n > vec->length); \
+\
     size_t max_cap = _##_C##_max_capacity(); \
     size_t new_cap; \
-\
-    assert(n > vec->length); \
 \
     if (n > max_cap) \
         return NULL; \

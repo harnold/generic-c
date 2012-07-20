@@ -268,11 +268,10 @@ _funspecs _C##_pos_t _C##_insert_back(_C##_t *list, _T val) \
 \
 _funspecs _C##_pos_t _C##_release(_C##_t *list, _C##_pos_t pos) \
 { \
-    _C##_pos_t next; \
-\
     assert(pos != gcl_list_end(list)); \
-    \
-    next = pos->next; \
+\
+    _C##_pos_t next = pos->next; \
+\
     _C##_unlink_node(pos); \
     free(pos); \
     return next; \
