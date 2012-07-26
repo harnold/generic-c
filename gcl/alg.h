@@ -107,11 +107,11 @@
         } \
     } while (0)
 
-#define gcl_copy(_C1, range, _C2, cont, pos) \
+#define gcl_copy(_C1, range, _C2, cont, insert_pos) \
     do { \
         _C1##_pos_t _pos; \
         gcl_for_each_pos(_C1, _pos, range) { \
-            _C2##_insert(cont, _pos, _C1##_get(_pos)); \
+            insert_pos = _C2##_insert(cont, insert_pos, _C1##_get(_pos)); \
         } \
     } while (0)
 
