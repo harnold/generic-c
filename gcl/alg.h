@@ -23,11 +23,6 @@
          (pos) != _C##_range_end(range); \
          _C##_forward(&(pos)), (i)++)
 
-#define gcl_for_each_pos_safe(_C, pos, tmp, range) \
-    for ((pos) = _C##_range_begin(range), (tmp) = _C##_next(pos); \
-         (pos) != _C##_range_end(range); \
-         (pos) = (tmp), _C##_forward(&(tmp)))
-
 #define gcl_swap(_C, pos1, pos2) \
     do { \
         _C##_elem_t _tmp = _C##_get(pos1); \
