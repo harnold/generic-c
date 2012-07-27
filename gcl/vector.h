@@ -87,6 +87,7 @@ _funcspecs _T _C##_front(_C##_t *vec); \
 _funcspecs _T _C##_back(_C##_t *vec); \
 _funcspecs _T _C##_at(_C##_t *vec, size_t i); \
 _funcspecs _T _C##_get(_C##_pos_t pos); \
+_funcspecs _T *_C##_get_ptr(_C#_pos_t pos); \
 _funcspecs void _C##_set(_C##_pos_t pos, _T val); \
 _funcspecs _C##_pos_t _C##_next(_C##_pos_t pos); \
 _funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos); \
@@ -410,6 +411,11 @@ _funcspecs _T _C##_at(_C##_t *vec, size_t i) \
 _funcspecs _T _C##_get(_C##_pos_t pos) \
 { \
     return *pos; \
+} \
+\
+_funcspecs _T *_C##_get_ptr(_C##_pos_t pos) \
+{ \
+    return pos;
 } \
 \
 _funcspecs void _C##_set(_C##_pos_t pos, _T val) \
