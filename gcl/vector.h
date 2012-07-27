@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define GCL_VECTOR_MINIMAL_CAPACITY      (16)
 #define GCL_VECTOR_INITIAL_CAPACITY      (16)
 #define GCL_VECTOR_GROWTH_FACTOR         (2)
 
@@ -133,8 +134,8 @@ _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
 \
     _T *data; \
 \
-    if (n < GCL_VECTOR_INITIAL_CAPACITY) \
-        n = GCL_VECTOR_INITIAL_CAPACITY; \
+    if (n < GCL_VECTOR_MINIMAL_CAPACITY) \
+        n = GCL_VECTOR_MINIMAL_CAPACITY; \
 \
     if (!(data = realloc(vec->data, n * sizeof(_T)))) { \
         GCL_ERROR(errno, "Reallocating memory for vector data failed"); \
@@ -183,7 +184,7 @@ _funcspecs _T *init_##_C(struct _C *vec, size_t n, void (*destroy_elem)(_T)) \
     vec->length = 0; \
     vec->capacity = n; \
     vec->destroy_elem = destroy_elem; \
-    return vec->data; \
+    return data; \
 } \
 \
 _funcspecs void destroy_##_C(struct _C *vec) \
