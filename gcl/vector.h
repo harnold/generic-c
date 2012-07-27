@@ -419,7 +419,7 @@ _funcspecs _T _C##_get(_C##_pos_t pos) \
 \
 _funcspecs _T *_C##_get_ptr(_C##_pos_t pos) \
 { \
-    return pos;
+    return pos; \
 } \
 \
 _funcspecs void _C##_set(_C##_pos_t pos, _T val) \
