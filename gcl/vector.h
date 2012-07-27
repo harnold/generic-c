@@ -169,14 +169,17 @@ _funcspecs _T *_##_C##_grow(struct _C *vec, size_t n) \
 \
 _funcspecs _T *init_##_C(struct _C *vec, size_t n, void (*destroy_elem)(_T)) \
 { \
+    _T *data; \
+\
     if (n < GCL_VECTOR_INITIAL_CAPACITY) \
         n = GCL_VECTOR_INITIAL_CAPACITY; \
 \
-    if (!(vec->data = malloc(n * sizeof(_T)))) { \
+    if (!(data = malloc(n * sizeof(_T)))) { \
         GCL_ERROR(errno, "Allocating memory for vector data failed"); \
         return NULL; \
     } \
 \
+    vec->data = data; \
     vec->length = 0; \
     vec->capacity = n; \
     vec->destroy_elem = destroy_elem; \
