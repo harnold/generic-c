@@ -1,8 +1,8 @@
 /*
  * Copyright 2012 Holger Arnold.
  *
- * Distributed under the Boost Software License, Version 1.0,
- * as published at http://www.boost.org/LICENSE_1_0.txt.
+ * Licensed under a modified BSD license.
+ * See the accompanying LICENSE file for details.
  */
 
 #ifndef GCL_LIST_H
