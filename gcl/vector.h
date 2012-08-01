@@ -328,6 +328,11 @@ _funcspecs _C##_range_t _C##_all(_C##_t *vec) \
     return (struct _C##_range) gcl_vector_all(vec); \
 } \
 \
+_funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end) \
+{ \
+    return (struct _C##_range) gcl_vector_range(begin, end); \
+} \
+\
 _funcspecs _C##_pos_t _C##_range_begin(_C##_range_t range) \
 { \
     return gcl_vector_range_begin(range); \
