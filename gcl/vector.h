@@ -80,19 +80,6 @@ _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n); \
 _funcspecs _T *_##_C##_grow(struct _C *vec, size_t n); \
 _funcspecs _T *init_##_C(struct _C *vec, size_t n, void (*destroy_elem)(_T)); \
 _funcspecs void destroy_##_C(struct _C *vec); \
-_funcspecs _T *_C##_reserve(_C##_t *vec, size_t n); \
-_funcspecs _T *_C##_shrink(_C##_t *vec); \
-_funcspecs _T *_C##_data(_C##_t *vec); \
-_funcspecs _T _C##_front(_C##_t *vec); \
-_funcspecs _T _C##_back(_C##_t *vec); \
-_funcspecs _T _C##_at(_C##_t *vec, size_t i); \
-_funcspecs _T _C##_get(_C##_pos_t pos); \
-_funcspecs _T *_C##_get_ptr(_C#_pos_t pos); \
-_funcspecs void _C##_set(_C##_pos_t pos, _T val); \
-_funcspecs _C##_pos_t _C##_next(_C##_pos_t pos); \
-_funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos); \
-_funcspecs void _C##_forward(_C##_pos_t *pos); \
-_funcspecs void _C##_backward(_C##_pos_t *pos); \
 _funcspecs _C##_pos_t _C##_insert(_C##_t *vec, _C##_pos_t pos, _T val); \
 _funcspecs _C##_pos_t _C##_insert_back(_C##_t *vec, _T val); \
 _funcspecs _C##_pos_t _C##_release(_C##_t *vec, _C##_pos_t pos); \
@@ -121,6 +108,18 @@ _funcspecs bool _C##_range_empty(_C##_range_t range); \
 _funcspecs size_t _C##_capacity(_C##_t *vec); \
 _funcspecs size_t _C##_length(_C##_t *vec); \
 _funcspecs bool _C##_empty(_C##_t *vec); \
+_funcspecs _T *_C##_reserve(_C##_t *vec, size_t n); \
+_funcspecs _T *_C##_shrink(_C##_t *vec); \
+_funcspecs _T _C##_front(_C##_t *vec); \
+_funcspecs _T _C##_back(_C##_t *vec); \
+_funcspecs _T _C##_at(_C##_t *vec, size_t i); \
+_funcspecs _T _C##_get(_C##_pos_t pos); \
+_funcspecs _T *_C##_get_ptr(_C#_pos_t pos); \
+_funcspecs void _C##_set(_C##_pos_t pos, _T val); \
+_funcspecs _C##_pos_t _C##_next(_C##_pos_t pos); \
+_funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos); \
+_funcspecs void _C##_forward(_C##_pos_t *pos); \
+_funcspecs void _C##_backward(_C##_pos_t *pos); \
 _funcspecs _C##_pos_t _C##_insert_front(_C##_t *vec, _T val); \
 _funcspecs void _C##_remove_front(_C##_t *vec); \
 _funcspecs void _C##_remove_back(_C##_t *vec);
