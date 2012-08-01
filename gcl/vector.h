@@ -23,7 +23,6 @@
 #define GCL_VECTOR_INITIAL_CAPACITY      (16)
 #define GCL_VECTOR_GROWTH_FACTOR         (2)
 
-#define gcl_vector_data(vec)             ((vec)->data)
 #define gcl_vector_length(vec)           ((vec)->end - (vec)->data)
 #define gcl_vector_capacity(vec)         ((vec)->data_end - (vec)->data)
 #define gcl_vector_begin(vec)            ((vec)->data)
@@ -389,11 +388,6 @@ _funcspecs _T *_C##_reserve(_C##_t *vec, size_t n) \
 _funcspecs _T *_C##_shrink(_C##_t *vec) \
 { \
     return _##_C##_do_resize(vec, vec->length); \
-} \
-\
-_funcspecs _T *_C##_data(_C##_t *vec) \
-{ \
-    return vec->data; \
 } \
 \
 _funcspecs _T _C##_front(_C##_t *vec) \
