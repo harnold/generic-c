@@ -91,6 +91,14 @@
         } \
     } while (0)
 
+#define gcl_count_all(_C, range, n) \
+    do { \
+        _C##_pos_t _pos; \
+        *(n) = 0; \
+        gcl_for_each_pos(_C, *(_pos), range) \
+            (*(n))++; \
+    } while (0)
+
 #define gcl_copy_front(_C1, range, _C2, cont) \
     do { \
         _C1##_pos_t _pos; \
