@@ -23,8 +23,8 @@
 #define GCL_VECTOR_INITIAL_CAPACITY      (16)
 #define GCL_VECTOR_GROWTH_FACTOR         (2)
 
-#define gcl_vector_length(vec)           ((vec)->end - (vec)->data)
-#define gcl_vector_capacity(vec)         ((vec)->data_end - (vec)->data)
+#define gcl_vector_length(vec)           ((size_t) ((vec)->end - (vec)->data))
+#define gcl_vector_capacity(vec)         ((size_t) ((vec)->data_end - (vec)->data))
 #define gcl_vector_begin(vec)            ((vec)->data)
 #define gcl_vector_end(vec)              ((vec)->end)
 #define gcl_vector_all(vec)              { gcl_vector_begin(vec), gcl_vector_end(vec) }
