@@ -137,7 +137,7 @@ _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
         n = GCL_VECTOR_MINIMAL_CAPACITY; \
 \
     if (!(data = realloc(vec->data, n * sizeof(_T)))) { \
-        GCL_ERROR(errno, "Reallocating memory for vector data failed"); \
+        GCL_ERROR(errno, "Reallocating memory for vector failed"); \
         return NULL; \
     } \
 \
@@ -176,7 +176,7 @@ _funcspecs _T *init_##_C(struct _C *vec, size_t n, void (*destroy_elem)(_T)) \
         n = GCL_VECTOR_INITIAL_CAPACITY; \
 \
     if (!(data = malloc(n * sizeof(_T)))) { \
-        GCL_ERROR(errno, "Allocating memory for vector data failed"); \
+        GCL_ERROR(errno, "Allocating memory for vector failed"); \
         return NULL; \
     } \
 \
