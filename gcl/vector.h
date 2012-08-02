@@ -19,22 +19,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define GCL_VECTOR_MINIMAL_CAPACITY      (16)
-#define GCL_VECTOR_INITIAL_CAPACITY      (16)
-#define GCL_VECTOR_GROWTH_FACTOR         (2)
+#define GCL_VECTOR_MINIMAL_CAPACITY     (16)
+#define GCL_VECTOR_INITIAL_CAPACITY     (16)
+#define GCL_VECTOR_GROWTH_FACTOR        (2)
 
-#define gcl_vector_length(vec)           ((size_t) ((vec)->end - (vec)->data))
-#define gcl_vector_capacity(vec)         ((size_t) ((vec)->data_end - (vec)->data))
-#define gcl_vector_begin(vec)            ((vec)->data)
-#define gcl_vector_end(vec)              ((vec)->end)
-#define gcl_vector_all(vec)              { gcl_vector_begin(vec), gcl_vector_end(vec) }
-#define gcl_vector_range(begin, end)     { begin, end }
-#define gcl_vector_range_begin(range)    ((range).begin)
-#define gcl_vector_range_end(range)      ((range).end)
-#define gcl_vector_range_from_pos(vec, pos) { pos, gcl_vector_end(vec) }
-#define gcl_vector_range_to_pos(vec, pos) { gcl_vector_begin(vec), pos }
-#define gcl_vector_range_length(range)   ((size_t) ((range).end - (range).begin))
-#define gcl_vector_range_empty(range)    ((range).begin == (range).end)
+#define gcl_vector_length(vec)          ((size_t) ((vec)->end - (vec)->data))
+#define gcl_vector_capacity(vec)        ((size_t) ((vec)->data_end - (vec)->data))
+#define gcl_vector_begin(vec)           ((vec)->data)
+#define gcl_vector_end(vec)             ((vec)->end)
 
 #define gcl_vector_for_each_pos(pos, vec) \
     for ((pos) = gcl_vector_begin(vec); \
@@ -324,44 +316,44 @@ _funcspecs _C##_pos_t _C##_end(_C##_t *vec) \
 \
 _funcspecs _C##_range_t _C##_all(_C##_t *vec) \
 { \
-    return (struct _C##_range) gcl_vector_all(vec); \
+    return (struct _C##_range) { gcl_vector_begin(vec), gcl_vector_end(vec) }; \
 } \
 \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end) \
 { \
-    return (struct _C##_range) gcl_vector_range(begin, end); \
+    return (struct _C##_range) { begin, end }; \
 } \
 \
 _funcspecs _C##_pos_t _C##_range_begin(_C##_range_t range) \
 { \
-    return gcl_vector_range_begin(range); \
+    return range.begin; \
 } \
 \
 _funcspecs _C##_pos_t _C##_range_end(_C##_range_t range) \
 { \
-    return gcl_vector_range_end(range); \
+    return range.end; \
 } \
 \
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *vec, _C##_pos_t pos) \
 { \
     assert(_##_C##_valid_pos(vec, pos)); \
-    return (struct _C##_range) gcl_vector_range_from_pos(vec, pos); \
+    return (struct _C##_range) { pos, gcl_vector_end(vec) }; \
 } \
 \
 _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *vec, _C##_pos_t pos) \
 { \
     assert(_##_C##_valid_pos(vec, pos)); \
-    return (struct _C##_range) gcl_vector_range_to_pos(vec, pos); \
+    return (struct _C##_range) { gcl_vector_begin(vec), pos }; \
 } \
 \
 _funcspecs size_t _C##_range_length(_C##_range_t range) \
 { \
-    return gcl_vector_range_length(range); \
+    return (size_t) (range.begin - range.end); \
 } \
 \
 _funcspecs bool _C##_range_empty(_C##_range_t range) \
 { \
-    return gcl_vector_range_empty(range); \
+    return range.begin == range.end; \
 } \
 \
 _funcspecs size_t _C##_capacity(_C##_t *vec) \

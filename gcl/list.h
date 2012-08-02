@@ -16,15 +16,8 @@
 #define GCL_ERROR(errnum, ...)
 #endif
 
-#define gcl_list_begin(list)             ((list)->end.next)
-#define gcl_list_end(list)               (&(list)->end)
-#define gcl_list_all(list)               { gcl_list_begin(list), gcl_list_end(list) }
-#define gcl_list_range(begin, end)       { begin, end }
-#define gcl_list_range_begin(range)      ((range).begin)
-#define gcl_list_range_end(range)        ((range).end)
-#define gcl_list_range_from_pos(list, pos) { pos, gcl_list_end(list) }
-#define gcl_list_range_to_pos(list, pos) { gcl_list_begin(list), pos }
-#define gcl_list_range_empty(range)      ((range).begin == (range).end)
+#define gcl_list_begin(list)            ((list)->end.next)
+#define gcl_list_end(list)              (&(list)->end)
 
 #define gcl_list_for_each_node(node, list) \
     for ((node) = gcl_list_begin(list); \
@@ -229,37 +222,37 @@ _funcspecs _C##_pos_t _C##_end(_C##_t *list) \
 \
 _funcspecs _C##_range_t _C##_all(_C##_t *list) \
 { \
-    return (struct _C##_range) gcl_list_all(list); \
+    return (struct _C##_range) { gcl_list_begin(list), gcl_list_end(list) }; \
 } \
 \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end) \
 { \
-    return (struct _C##_range) gcl_list_range(begin, end); \
+    return (struct _C##_range) { begin, end }; \
 } \
 \
 _funcspecs _C##_pos_t _C##_range_begin(_C##_range_t range) \
 { \
-    return gcl_list_range_begin(range); \
+    return range.begin; \
 } \
 \
 _funcspecs _C##_pos_t _C##_range_end(_C##_range_t range) \
 { \
-    return gcl_list_range_end(range); \
+    return range.end; \
 } \
 \
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *list, _C##_pos_t pos) \
 { \
-    return (struct _C##_range) gcl_list_range_from_pos(list, pos); \
+    return (struct _C##_range) { pos, gcl_list_end(list) }; \
 } \
 \
 _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *list, _C##_pos_t pos) \
 { \
-    return (struct _C##_range) gcl_list_range_to_pos(list, pos); \
+    return (struct _C##_range) { gcl_list_begin(list), pos }; \
 } \
 \
 _funcspecs bool _C##_range_empty(_C##_range_t range) \
 { \
-    return gcl_list_range_empty(range); \
+    return range.begin == range.end; \
 } \
 \
 _funcspecs bool _C##_empty(_C##_t *list) \
