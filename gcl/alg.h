@@ -10,17 +10,17 @@
 
 #define gcl_for_each_pos(_C, pos, range) \
     for ((pos) = _C##_range_begin(range); \
-         (pos) != _C##_range_end(range); \
+         !_C##_range_at_end(range, pos); \
          _C##_forward(&(pos)))
 
 #define gcl_for_each_pos_rev(_C, pos, range) \
     for (_C##_pos_t _tmp = _C##_range_end(range); \
-         (_tmp) != _C##_range_begin(range) ? (pos) = _C##_prev(_tmp), 1 : 0; \
+         !_C##_range_at_begin(range, _tmp) ? (pos) = _C##_prev(_tmp), 1 : 0; \
          _C##_backward(&(_tmp)))
 
 #define gcl_for_each_pos_indexed(_C, i, pos, range) \
     for ((pos) = _C##_range_begin(range), (i) = 0; \
-         (pos) != _C##_range_end(range); \
+         !_C##_range_at_end(range, pos); \
          _C##_forward(&(pos)), (i)++)
 
 #define gcl_swap(_C, pos1, pos2) \

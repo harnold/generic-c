@@ -89,10 +89,14 @@ _funcspecs size_t _##_C##_max_capacity(void); \
 _funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest); \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *vec); \
 _funcspecs _C##_pos_t _C##_end(_C##_t *vec); \
+_funcspecs bool _C##_at_begin(_C##_t *vec, _C##_pos_t pos); \
+_funcspecs bool _C##_at_end(_C##_t *vec, _C##_pos_t pos); \
 _funcspecs _C##_range_t _C##_all(_C##_t *vec); \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end); \
 _funcspecs _C##_pos_t _C##_range_begin(_C##_range_t range); \
 _funcspecs _C##_pos_t _C##_range_end(_C##_range_t range); \
+_funcspecs bool _C##_range_at_begin(_C##_range_t range, _C##_pos_t pos); \
+_funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos); \
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *vec, _C##_pos_t pos); \
 _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *vec, _C##_pos_t pos); \
 _funcspecs size_t _C##_range_length(_C##_range_t range); \
@@ -314,6 +318,16 @@ _funcspecs _C##_pos_t _C##_end(_C##_t *vec) \
     return gcl_vector_end(vec); \
 } \
 \
+_funcspecs bool _C##_at_begin(_C##_t *vec, _C##_pos_t pos) \
+{ \
+    return pos == gcl_vector_begin(vec); \
+} \
+\
+_funcspecs bool _C##_at_end(_C##_t *vec, _C##_pos_t pos) \
+{ \
+    return pos == gcl_vector_end(vec); \
+} \
+\
 _funcspecs _C##_range_t _C##_all(_C##_t *vec) \
 { \
     return (struct _C##_range) { gcl_vector_begin(vec), gcl_vector_end(vec) }; \
@@ -332,6 +346,16 @@ _funcspecs _C##_pos_t _C##_range_begin(_C##_range_t range) \
 _funcspecs _C##_pos_t _C##_range_end(_C##_range_t range) \
 { \
     return range.end; \
+} \
+\
+_funcspecs bool _C##_range_at_begin(_C##_range_t range, _C##_pos_t pos) \
+{ \
+    return pos == range.begin; \
+} \
+\
+_funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos) \
+{ \
+    return pos == range.end; \
 } \
 \
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *vec, _C##_pos_t pos) \

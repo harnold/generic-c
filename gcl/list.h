@@ -83,10 +83,14 @@ _funcspecs void _C##_link_nodes(struct _C##_node *prev, struct _C##_node *next);
 _funcspecs void _C##_unlink_node(struct _C##_node* node); \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *list); \
 _funcspecs _C##_pos_t _C##_end(_C##_t *list); \
+_funcspecs bool _C##_at_begin(_C##_t *list, _C##_pos_t pos); \
+_funcspecs bool _C##_at_end(_C##_t *list, _C##_pos_t pos); \
 _funcspecs _C##_range_t _C##_all(_C##_t *list); \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end); \
 _funcspecs _C##_pos_t _C##_range_begin(_C##_range_t range); \
 _funcspecs _C##_pos_t _C##_range_end(_C##_range_t range); \
+_funcspecs bool _C##_range_at_begin(_C##_range_t range, _C##_pos_t pos); \
+_funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos); \
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *list, _C##_pos_t pos); \
 _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *list, _C##_pos_t pos); \
 _funcspecs bool _C##_range_empty(_C##_range_t range); \
@@ -220,6 +224,16 @@ _funcspecs _C##_pos_t _C##_end(_C##_t *list) \
     return gcl_list_end(list); \
 } \
 \
+_funcspecs bool _C##_at_begin(_C##_t *list, _C##_pos_t pos) \
+{ \
+    return pos == gcl_list_begin(list); \
+} \
+\
+_funcspecs bool _C##_at_end(_C##_t *list, _C##_pos_t pos) \
+{ \
+    return pos == gcl_list_end(list); \
+} \
+\
 _funcspecs _C##_range_t _C##_all(_C##_t *list) \
 { \
     return (struct _C##_range) { gcl_list_begin(list), gcl_list_end(list) }; \
@@ -238,6 +252,16 @@ _funcspecs _C##_pos_t _C##_range_begin(_C##_range_t range) \
 _funcspecs _C##_pos_t _C##_range_end(_C##_range_t range) \
 { \
     return range.end; \
+} \
+\
+_funcspecs bool _C##_range_at_begin(_C##_range_t range, _C##_pos_t pos) \
+{ \
+    return pos == range.begin; \
+} \
+\
+_funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos) \
+{ \
+    return pos == range.end; \
 } \
 \
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *list, _C##_pos_t pos) \
