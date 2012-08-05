@@ -23,14 +23,14 @@
 #define GCL_VECTOR_INITIAL_CAPACITY     (16)
 #define GCL_VECTOR_GROWTH_FACTOR        (2)
 
-#define gcl_vector_length(vec)          ((size_t) ((vec)->end - (vec)->data))
-#define gcl_vector_capacity(vec)        ((size_t) ((vec)->data_end - (vec)->data))
-#define gcl_vector_begin(vec)           ((vec)->data)
-#define gcl_vector_end(vec)             ((vec)->end)
+#define _gcl_vector_length(vec)         ((size_t) ((vec)->end - (vec)->data))
+#define _gcl_vector_capacity(vec)       ((size_t) ((vec)->data_end - (vec)->data))
+#define _gcl_vector_begin(vec)          ((vec)->data)
+#define _gcl_vector_end(vec)            ((vec)->end)
 
-#define gcl_vector_for_each_pos(pos, vec) \
-    for ((pos) = gcl_vector_begin(vec); \
-         (pos) != gcl_vector_end(vec); \
+#define _gcl_vector_for_each_pos(pos, vec) \
+    for ((pos) = _gcl_vector_begin(vec); \
+         (pos) != _gcl_vector_end(vec); \
          (pos)++)
 
 #define GCL_GENERATE_VECTOR_TYPES(_C, _T) \
@@ -126,7 +126,7 @@ _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
 { \
     assert(n <= _##_C##_max_capacity()); \
 \
-    size_t length = gcl_vector_length(vec); \
+    size_t length = _gcl_vector_length(vec); \
     _T *data; \
 \
     if (n < GCL_VECTOR_MINIMAL_CAPACITY) \
@@ -145,7 +145,7 @@ _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
 \
 _funcspecs _T *_##_C##_grow(struct _C *vec, size_t n) \
 { \
-    assert(n > gcl_vector_length(vec)); \
+    assert(n > _gcl_vector_length(vec)); \
 \
     size_t max_cap = _##_C##_max_capacity(); \
     size_t new_cap; \
@@ -153,7 +153,7 @@ _funcspecs _T *_##_C##_grow(struct _C *vec, size_t n) \
     if (n > max_cap) \
         return NULL; \
 \
-    new_cap = gcl_vector_capacity(vec) * GCL_VECTOR_GROWTH_FACTOR; \
+    new_cap = _gcl_vector_capacity(vec) * GCL_VECTOR_GROWTH_FACTOR; \
 \
     if (new_cap > max_cap) \
         new_cap = max_cap; \
@@ -188,7 +188,7 @@ _funcspecs void destroy_##_C(struct _C *vec) \
     _T *pos; \
 \
     if (vec->destroy_elem) { \
-        gcl_vector_for_each_pos(pos, vec) \
+        _gcl_vector_for_each_pos(pos, vec) \
             vec->destroy_elem(*pos); \
     } \
 \
@@ -199,7 +199,7 @@ _funcspecs _C##_pos_t _C##_insert(_C##_t *vec, _C##_pos_t pos, _T val) \
 { \
     assert(_##_C##_valid_pos(vec, pos)); \
 \
-    if (gcl_vector_capacity(vec) <= gcl_vector_length(vec)) { \
+    if (_gcl_vector_capacity(vec) <= _gcl_vector_length(vec)) { \
         size_t i = _##_C##_index_of_pos(vec, pos); \
         if (!_##_C##_grow(vec, vec->length + 1)) { \
             GCL_ERROR(0, "Increasing vector capacity failed"); \
@@ -208,10 +208,10 @@ _funcspecs _C##_pos_t _C##_insert(_C##_t *vec, _C##_pos_t pos, _T val) \
         pos = _##_C##_pos_of_index(vec, i); \
     } \
 \
-    assert(gcl_vector_capacity(vec) > gcl_vector_length(vec)); \
+    assert(_gcl_vector_capacity(vec) > _gcl_vector_length(vec)); \
 \
-    if (pos < gcl_vector_end(vec)) \
-        _##_C##_move_data(pos, gcl_vector_end(vec), pos + 1); \
+    if (pos < _gcl_vector_end(vec)) \
+        _##_C##_move_data(pos, _gcl_vector_end(vec), pos + 1); \
 \
     *pos = val; \
     vec->end++; \
@@ -220,25 +220,25 @@ _funcspecs _C##_pos_t _C##_insert(_C##_t *vec, _C##_pos_t pos, _T val) \
 \
 _funcspecs _C##_pos_t _C##_insert_back(_C##_t *vec, _T val) \
 { \
-    if (gcl_vector_capacity(vec) <= gcl_vector_length(vec)) { \
-        if (!_##_C##_grow(vec, gcl_vector_length(vec) + 1)) { \
+    if (_gcl_vector_capacity(vec) <= _gcl_vector_length(vec)) { \
+        if (!_##_C##_grow(vec, _gcl_vector_length(vec) + 1)) { \
             GCL_ERROR(0, "Increasing vector capacity failed"); \
             return NULL; \
         } \
     } \
 \
-    assert(gcl_vector_capacity(vec) > gcl_vector_length(vec)); \
+    assert(_gcl_vector_capacity(vec) > _gcl_vector_length(vec)); \
 \
     *end++ = val; \
-    return gcl_vector_end(vec) - 1; \
+    return _gcl_vector_end(vec) - 1; \
 } \
 \
 _funcspecs _C##_pos_t _C##_release(_C##_t *vec, _C##_pos_t pos) \
 { \
-    assert(_##_C##_valid_pos(vec, pos) && pos != gcl_vector_end(vec)); \
+    assert(_##_C##_valid_pos(vec, pos) && pos != _gcl_vector_end(vec)); \
 \
-    if (pos < gcl_vector_end(vec) - 1) \
-        _##_C##_move_data(pos + 1, gcl_vector_end(vec), pos); \
+    if (pos < _gcl_vector_end(vec) - 1) \
+        _##_C##_move_data(pos + 1, _gcl_vector_end(vec), pos); \
 \
     vec->end--; \
     return pos; \
@@ -246,7 +246,7 @@ _funcspecs _C##_pos_t _C##_release(_C##_t *vec, _C##_pos_t pos) \
 \
 _funcspecs _C##_pos_t _C##_remove(_C##_t *vec, _C##_pos_t pos) \
 { \
-    assert(_##_C##_valid_pos(vec, pos) && pos != gcl_vector_end(vec)); \
+    assert(_##_C##_valid_pos(vec, pos) && pos != _gcl_vector_end(vec)); \
 \
     if (vec->destroy_elem) \
         vec->destroy_elem(*pos); \
@@ -259,7 +259,7 @@ _funcspecs void _C##_clear(_C##_t *vec) \
     _T *pos; \
 \
     if (vec->destroy_elem) { \
-        gcl_vector_for_each_pos(pos, vec) \
+        _gcl_vector_for_each_pos(pos, vec) \
             vec->destroy_elem(*pos); \
     } \
 \
@@ -270,12 +270,12 @@ _funcspecs void _C##_clear(_C##_t *vec) \
 \
 _funcspecs bool _##_C##_valid_index(struct _C *vec, size_t i) \
 { \
-    return i < gcl_vector_length(vec); \
+    return i < _gcl_vector_length(vec); \
 } \
 \
 _funcspecs bool _##_C##_valid_pos(struct _C *vec, _T *pos) \
 { \
-    return gcl_vector_begin(vec) <= pos && pos <= gcl_vector_end(vec); \
+    return _gcl_vector_begin(vec) <= pos && pos <= _gcl_vector_end(vec); \
 } \
 \
 _funcspecs bool _##_C##_valid_range(struct _C *vec, _T *begin, _T *end) \
@@ -288,13 +288,13 @@ _funcspecs bool _##_C##_valid_range(struct _C *vec, _T *begin, _T *end) \
 _funcspecs size_t _##_C##_index_of_pos(struct _C *vec, _T *pos) \
 { \
     assert(_##_C##_valid_pos(vec, pos)); \
-    return (size_t) (pos - gcl_vector_begin(vec)); \
+    return (size_t) (pos - _gcl_vector_begin(vec)); \
 } \
 \
 _funcspecs _C##_pos_t _##_C##_pos_of_index(struct _C *vec, size_t i) \
 { \
     assert(_##_C##_valid_index(vec, i)); \
-    return gcl_vector_begin(vec) + i; \
+    return _gcl_vector_begin(vec) + i; \
 } \
 \
 _funcspecs size_t _##_C##_max_capacity(void) \
@@ -310,27 +310,27 @@ _funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest) \
 \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *vec) \
 { \
-    return gcl_vector_begin(vec); \
+    return _gcl_vector_begin(vec); \
 } \
 \
 _funcspecs _C##_pos_t _C##_end(_C##_t *vec) \
 { \
-    return gcl_vector_end(vec); \
+    return _gcl_vector_end(vec); \
 } \
 \
 _funcspecs bool _C##_at_begin(_C##_t *vec, _C##_pos_t pos) \
 { \
-    return pos == gcl_vector_begin(vec); \
+    return pos == _gcl_vector_begin(vec); \
 } \
 \
 _funcspecs bool _C##_at_end(_C##_t *vec, _C##_pos_t pos) \
 { \
-    return pos == gcl_vector_end(vec); \
+    return pos == _gcl_vector_end(vec); \
 } \
 \
 _funcspecs _C##_range_t _C##_all(_C##_t *vec) \
 { \
-    return (struct _C##_range) { gcl_vector_begin(vec), gcl_vector_end(vec) }; \
+    return (struct _C##_range) { _gcl_vector_begin(vec), _gcl_vector_end(vec) }; \
 } \
 \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end) \
@@ -361,13 +361,13 @@ _funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos) \
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *vec, _C##_pos_t pos) \
 { \
     assert(_##_C##_valid_pos(vec, pos)); \
-    return (struct _C##_range) { pos, gcl_vector_end(vec) }; \
+    return (struct _C##_range) { pos, _gcl_vector_end(vec) }; \
 } \
 \
 _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *vec, _C##_pos_t pos) \
 { \
     assert(_##_C##_valid_pos(vec, pos)); \
-    return (struct _C##_range) { gcl_vector_begin(vec), pos }; \
+    return (struct _C##_range) { _gcl_vector_begin(vec), pos }; \
 } \
 \
 _funcspecs size_t _C##_range_length(_C##_range_t range) \
@@ -382,24 +382,24 @@ _funcspecs bool _C##_range_empty(_C##_range_t range) \
 \
 _funcspecs size_t _C##_capacity(_C##_t *vec) \
 { \
-    return gcl_vector_capacity(vec); \
+    return _gcl_vector_capacity(vec); \
 } \
 \
 _funcspecs size_t _C##_length(_C##_t *vec) \
 { \
-    return gcl_vector_length(vec); \
+    return _gcl_vector_length(vec); \
 } \
 \
 _funcspecs bool _C##_empty(_C##_t *vec) \
 { \
-    return gcl_vector_length(vec) == 0; \
+    return _gcl_vector_length(vec) == 0; \
 } \
 \
 _funcspecs _T *_C##_reserve(_C##_t *vec, size_t n) \
 { \
     assert(n <= _##_C##_max_capacity()); \
 \
-    if (n <= gcl_vector_capacity(vec)) \
+    if (n <= _gcl_vector_capacity(vec)) \
         return vec->data; \
 \
     return _##_C##_do_resize(vec, n); \
@@ -465,19 +465,19 @@ _funcspecs void _C##_backward(_C##_pos_t *pos) \
 \
 _funcspecs _C##_pos_t _C##_insert_front(_C##_t *vec, _T val) \
 { \
-    return _C##_insert(vec, gcl_vector_begin(vec), val); \
+    return _C##_insert(vec, _gcl_vector_begin(vec), val); \
 } \
 \
 _funcspecs void _C##_remove_front(_C##_t *vec) \
 { \
     assert(!_C##_empty(vec)); \
-    _C##_remove(vec, gcl_vector_begin(vec)); \
+    _C##_remove(vec, _gcl_vector_begin(vec)); \
 } \
 \
 _funcspecs void _C##_remove_back(_C##_t *vec) \
 { \
     assert(!_C##_empty(vec)); \
-    _C##_remove(vec, gcl_vector_end(vec) - 1); \
+    _C##_remove(vec, _gcl_vector_end(vec) - 1); \
 }
 
 #endif
