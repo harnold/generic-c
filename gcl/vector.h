@@ -200,7 +200,7 @@ _funcspecs _C##_pos_t _C##_insert(_C##_t *vec, _C##_pos_t pos, _T val) \
 \
     if (_gcl_vector_capacity(vec) <= _gcl_vector_length(vec)) { \
         size_t i = _##_C##_index_of_pos(vec, pos); \
-        if (!_##_C##_grow(vec, vec->length + 1)) { \
+        if (!_##_C##_grow(vec, _gcl_vector_length(vec) + 1)) { \
             GCL_ERROR(0, "Increasing vector capacity failed"); \
             return NULL; \
         } \
@@ -399,7 +399,7 @@ _funcspecs _T *_C##_reserve(_C##_t *vec, size_t n) \
 \
 _funcspecs _T *_C##_shrink(_C##_t *vec) \
 { \
-    return _##_C##_do_resize(vec, vec->length); \
+    return _##_C##_do_resize(vec, _gcl_vector_length(vec)); \
 } \
 \
 _funcspecs _T _C##_front(_C##_t *vec) \
