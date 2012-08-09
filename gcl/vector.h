@@ -279,7 +279,7 @@ _funcspecs bool _##_C##_valid_pos(struct _C *vec, _T *pos) \
 \
 _funcspecs size_t _##_C##_index_of_pos(struct _C *vec, _T *pos) \
 { \
-    assert(_##_C##_valid_pos(vec, pos)); \
+    assert(_##_C##_valid_pos(vec, pos) && pos != _gcl_vector_end(vec)); \
     return (size_t) (pos - _gcl_vector_begin(vec)); \
 } \
 \
