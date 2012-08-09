@@ -82,7 +82,6 @@ _funcspecs void _C##_clear(_C##_t *vec);
 \
 _funcspecs bool _##_C##_valid_index(struct _C *vec, size_t i); \
 _funcspecs bool _##_C##_valid_pos(struct _C *vec, _T *pos); \
-_funcspecs bool _##_C##_valid_range(struct _C *vec, _T *begin, _T *end); \
 _funcspecs size_t _##_C##_index_of_pos(struct _C *vec, _T *pos); \
 _funcspecs _C##_pos_t _##_C##_pos_of_index(struct _C *vec, size_t i); \
 _funcspecs size_t _##_C##_max_capacity(void); \
@@ -276,13 +275,6 @@ _funcspecs bool _##_C##_valid_index(struct _C *vec, size_t i) \
 _funcspecs bool _##_C##_valid_pos(struct _C *vec, _T *pos) \
 { \
     return _gcl_vector_begin(vec) <= pos && pos <= _gcl_vector_end(vec); \
-} \
-\
-_funcspecs bool _##_C##_valid_range(struct _C *vec, _T *begin, _T *end) \
-{ \
-    return _##_C##_valid_pos(vec, begin) \
-        && _##_C##_valid_pos(vec, end) \
-        && begin <= end; \
 } \
 \
 _funcspecs size_t _##_C##_index_of_pos(struct _C *vec, _T *pos) \
