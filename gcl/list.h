@@ -117,9 +117,10 @@ _funcspecs void _C##_splice_back(_C##_t *dest_list, _C##_t *src_list, _C##_range
 \
 _funcspecs void init_##_C(struct _C *list, void (*destroy_elem)(_T)) \
 { \
-    list->end.next = &list->end; \
-    list->end.prev = &list->end; \
-    list->destroy_elem = destroy_elem; \
+    *list = (struct _C) { \
+        .end = { .next = &list->end, .prev = &list->end }, \
+        .destroy_elem = destroy_elem \
+    }; \
 } \
 \
 _funcspecs void destroy_##_C(struct _C *list) \

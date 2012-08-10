@@ -175,10 +175,12 @@ _funcspecs _T *init_##_C(struct _C *vec, size_t n, void (*destroy_elem)(_T)) \
         return NULL; \
     } \
 \
-    vec->data = data; \
-    vec->data_end = data + n; \
-    vec->end = data; \
-    vec->destroy_elem = destroy_elem; \
+    *vec = (struct _C) { \
+        .data = data, \
+        .data_end = data + n, \
+        .end = data, \
+        .destroy_elem = destroy_elem \
+    }; \
     return data; \
 } \
 \
