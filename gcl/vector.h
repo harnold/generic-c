@@ -241,9 +241,7 @@ _funcspecs _C##_pos_t _C##_release(_C##_t *vec, _C##_pos_t pos) \
 { \
     assert(_##_C##_valid_pos(vec, pos) && pos != _gcl_vector_end(vec)); \
 \
-    if (pos < _gcl_vector_end(vec) - 1) \
-        _##_C##_move_data(pos + 1, _gcl_vector_end(vec), pos); \
-\
+    _##_C##_move_data(pos + 1, _gcl_vector_end(vec), pos); \
     vec->end--; \
     return pos; \
 } \
@@ -302,7 +300,11 @@ _funcspecs size_t _##_C##_max_capacity(void) \
 _funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest) \
 { \
     assert(begin <= end); \
-    memmove(dest, begin, (size_t) (end - begin) * sizeof(_T)); \
+\
+    size_t n = (size_t) (end - begin); \
+\
+    if (n != 0) \
+        memmove(dest, begin, n * sizeof(_T)); \
 } \
 \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *vec) \
