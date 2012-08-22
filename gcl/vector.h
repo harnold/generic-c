@@ -155,7 +155,7 @@ _funcspecs _T *_##_C##_grow(struct _C *vec, size_t n) \
     if (n > max_cap) \
         return NULL; \
 \
-    new_cap = _gcl_vector_capacity(vec) * GCL_VECTOR_GROWTH_FACTOR; \
+    new_cap = (size_t) (_gcl_vector_capacity(vec) * GCL_VECTOR_GROWTH_FACTOR); \
 \
     if (new_cap > max_cap) \
         new_cap = max_cap; \
