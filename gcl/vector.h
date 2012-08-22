@@ -398,11 +398,11 @@ _funcspecs bool _C##_empty(_C##_t *vec) \
 _funcspecs _T *_C##_reserve(_C##_t *vec, size_t n) \
 { \
     assert(n <= _##_C##_max_capacity()); \
-\
-    if (n <= _gcl_vector_capacity(vec)) \
+ \
+    if (n > _gcl_vector_capacity(vec)) \
+        return _##_C##_do_resize(vec, n); \
+    else \
         return vec->data; \
-\
-    return _##_C##_do_resize(vec, n); \
 } \
 \
 _funcspecs _T *_C##_shrink(_C##_t *vec) \
