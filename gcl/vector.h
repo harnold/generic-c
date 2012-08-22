@@ -234,7 +234,7 @@ _funcspecs _C##_pos_t _C##_insert_back(_C##_t *vec, _T val) \
     assert(_gcl_vector_capacity(vec) > _gcl_vector_length(vec)); \
 \
     *vec->end++ = val; \
-    return _gcl_vector_end(vec) - 1; \
+    return vec->end - 1; \
 } \
 \
 _funcspecs _C##_pos_t _C##_release(_C##_t *vec, _C##_pos_t pos) \
