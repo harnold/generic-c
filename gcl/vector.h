@@ -371,6 +371,7 @@ _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *vec, _C##_pos_t pos) \
 \
 _funcspecs size_t _C##_range_length(_C##_range_t range) \
 { \
+    assert(range.begin <= range.end); \
     return (size_t) (range.begin - range.end); \
 } \
 \
