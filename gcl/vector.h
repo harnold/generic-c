@@ -123,7 +123,7 @@ _funcspecs void _C##_remove_back(_C##_t *vec);
 \
 _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
 { \
-    assert(n <= _##_C##_max_capacity()); \
+    assert(n >= _gcl_vector_length(buf) && n <= _##_C##_max_capacity()); \
 \
     size_t length = _gcl_vector_length(vec); \
     _T *data; \
