@@ -131,6 +131,9 @@ _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
     if (n < GCL_VECTOR_MINIMAL_CAPACITY) \
         n = GCL_VECTOR_MINIMAL_CAPACITY; \
 \
+    if (n == _gcl_vector_capacity(vec)) \
+        return vec->data; \
+\
     if (!(data = realloc(vec->data, n * sizeof(_T)))) { \
         GCL_ERROR(errno, "Reallocating memory for vector failed"); \
         return NULL; \
