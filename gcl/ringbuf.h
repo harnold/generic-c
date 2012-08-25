@@ -183,7 +183,7 @@ _funcspecs size_t _C_capacity(_C_t *buf)
 
 _funcspecs size_t _C_max_capacity(void)
 {
-    return SIZE_MAX / sizeof(_T) - 1;
+    return (size_t) (SIZE_MAX / (GCL_RINGBUF_GROWTH_FACTOR * sizeof(_T))) - 1;
 }
 
 _funcspecs _T *_C_reserve(_C_t *buf, size_t n)
