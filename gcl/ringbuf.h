@@ -84,10 +84,21 @@ _funcspecs size_t _C_length(_C_t *buf);
 _funcspecs bool _C_empty(_C_t *buf);
 _funcspecs size_t _C_capacity(_C_t *buf);
 _funcspecs size_t _C_max_capacity(void);
+_funcspecs _T *_C_reserve(_C_t *buf, size_t n);
 _funcspecs _T _C_front(_C_t *buf);
 _funcspecs _T _C_back(_C_t *buf);
 _funcspecs _T _C_at(_C_t *buf, size_t i);
-_funcspecs _T *_C_reserve(_C_t *buf, size_t n);
+_funcspecs _C_pos_t _C_begin(_C_t *buf);
+_funcspecs _C_pos_t _C_end(_C_t *buf);
+_funcspecs bool _C_at_begin(_C_t *buf, _C_pos_t pos);
+_funcspecs bool _C_at_end(_C_t *buf, _C_pos_t pos);
+_funcspecs _T _C_get(_C_pos_t pos);
+_funcspecs _T *_C_get_ptr(_C_pos_t pos);
+_funcspecs void _C_set(_C_pos_t pos, _T val);
+_funcspecs _C_pos_t _C_next(_C_pos_t pos);
+_funcspecs _C_pos_t _C_prev(_C_pos_t pos);
+_funcspecs void _C_forward(_C_pos_t *pos);
+_funcspecs void _C_backward(_C_pos_t *pos);
 _funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val);
 _funcspecs _C_pos_t _C_insert_front(_C_t *buf, _T val);
 _funcspecs _C_pos_t _C_insert_back(_C_t *buf, _T val);
@@ -310,6 +321,16 @@ _funcspecs size_t _C_max_capacity(void)
     return (size_t) (SIZE_MAX / (GCL_RINGBUF_GROWTH_FACTOR * sizeof(_T))) - 1;
 }
 
+_funcspecs _T *_C_reserve(_C_t *buf, size_t n)
+{
+    assert(n <= _C_max_capacity());
+
+    if (n > _C_capacity(buf))
+        return __C_do_resize_grow(buf, n);
+    else
+        return buf->data;
+}
+
 _funcspecs _T _C_front(_C_t *buf)
 {
     assert(!_C_empty(buf));
@@ -328,14 +349,59 @@ _funcspecs _T _C_at(_C_t *buf, size_t i)
     return *__C_ptr_add(buf, buf->begin, i);
 }
 
-_funcspecs _T *_C_reserve(_C_t *buf, size_t n)
+_funcspecs _C_pos_t _C_begin(_C_t *buf)
 {
-    assert(n <= _C_max_capacity());
+    return __C_pos(buf, buf->begin);
+}
 
-    if (n > _C_capacity(buf))
-        return __C_do_resize_grow(buf, n);
-    else
-        return buf->data;
+_funcspecs _C_pos_t _C_end(_C_t *buf)
+{
+    return __C_pos(buf, buf->end);
+}
+
+_funcspecs bool _C_at_begin(_C_t *buf, _C_pos_t pos)
+{
+    return pos.ptr == buf->begin;
+}
+
+_funcspecs bool _C_at_end(_C_t *buf, _C_pos_t pos)
+{
+    return pos.ptr == buf->end;
+}
+
+_funcspecs _T _C_get(_C_pos_t pos)
+{
+    return *pos.ptr;
+}
+
+_funcspecs _T *_C_get_ptr(_C_pos_t pos)
+{
+    return pos.ptr;
+}
+
+_funcspecs void _C_set(_C_pos_t pos, _T val)
+{
+    *pos.ptr = val;
+}
+
+_funcspecs _C_pos_t _C_next(_C_pos_t pos)
+{
+    return __C_pos(pos.buf, __C_ptr_add(pos.buf, pos.ptr, 1));
+}
+
+_funcspecs _C_pos_t _C_prev(_C_pos_t pos)
+{
+    return __C_pos(pos.buf, __C_ptr_sub(pos.buf, pos.ptr, 1));
+}
+
+_funcspecs void _C_forward(_C_pos_t *pos)
+{
+    __C_ptr_inc(pos->buf, &pos->ptr);
+}
+
+_funcspecs void _C_backward(_C_pos_t *pos)
+{
+    __C_ptr_dec(pos->buf, &pos->ptr);
 }
 
 _funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val)
