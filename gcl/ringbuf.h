@@ -96,9 +96,9 @@ _funcspecs _T *__C_do_resize_grow(struct _C *buf, size_t n)
     if (n == _C_capacity(buf))
         return buf->data;
 
-    size_t old_cap = _C_capacity(buf);
-    size_t begin_offset = (size_t) (buf->begin - buf->data);
-    size_t end_offset = (size_t) (buf->end - buf->data);
+    size_t data_end = (size_t) (buf->data_end - buf->data);
+    size_t begin = (size_t) (buf->begin - buf->data);
+    size_t end = (size_t) (buf->end - buf->data);
 
     _T *data = realloc(buf->data, (n + 1) * sizeof(_T));
 
@@ -109,23 +109,22 @@ _funcspecs _T *__C_do_resize_grow(struct _C *buf, size_t n)
 
     if (!__C_contiguous(buf)) {
 
-        size_t left_part = end_offset;
-        size_t right_part = old_cap - begin_offset;
+        size_t left_part = end;
+        size_t right_part = data_end - begin;
 
-        if (left_part < right_part && left_part <= n - old_cap) {
-            __C_move_data(data, data + end_offset, data + old_cap);
-            end_offset += old_cap;
+        if (left_part < right_part && left_part < n - data_end) {
+            __C_move_data(data, data + end, data + data_end);
+            end += data_end;
         } else {
-            __C_move_data(data + begin_offset, data + old_cap,
-                          data + n - right_part);
-            begin_offset += n - old_cap;
+            __C_move_data(data + begin, data + data_end, data + n - right_part);
+            begin += n - data_end;
         }
     }
 
     buf->data = data;
     buf->data_end = data + n;
-    buf->begin = data + begin_offset;
-    buf->end = data + end_offset;
+    buf->begin = data + begin;
+    buf->end = data + end;
 
     return data;
 }
