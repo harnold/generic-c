@@ -84,6 +84,9 @@ _funcspecs size_t _C_length(_C_t *buf);
 _funcspecs bool _C_empty(_C_t *buf);
 _funcspecs size_t _C_capacity(_C_t *buf);
 _funcspecs size_t _C_max_capacity(void);
+_funcspecs _T _C_front(_C_t *buf);
+_funcspecs _T _C_back(_C_t *buf);
+_funcspecs _T _C_at(_C_t *buf, size_t i);
 _funcspecs _T *_C_reserve(_C_t *buf, size_t n);
 _funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val);
 _funcspecs _C_pos_t _C_insert_front(_C_t *buf, _T val);
@@ -305,6 +308,24 @@ _funcspecs size_t _C_capacity(_C_t *buf)
 _funcspecs size_t _C_max_capacity(void)
 {
     return (size_t) (SIZE_MAX / (GCL_RINGBUF_GROWTH_FACTOR * sizeof(_T))) - 1;
+}
+
+_funcspecs _T _C_front(_C_t *buf)
+{
+    assert(!_C_empty(buf));
+    return *buf->begin;
+}
+
+_funcspecs _T _C_back(_C_t *buf)
+{
+    assert(!_C_empty(buf));
+    return *__C_ptr_sub(buf, buf->end, 1);
+}
+
+_funcspecs _T _C_at(_C_t *buf, size_t i)
+{
+    assert(__C_valid_index(buf, i));
+    return *__C_ptr_add(buf, buf->begin, i);
 }
 
 _funcspecs _T *_C_reserve(_C_t *buf, size_t n)
