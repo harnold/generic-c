@@ -167,8 +167,8 @@ _funcspecs void destroy__C(struct _C *buf)
 _funcspecs size_t _C_length(_C_t *buf)
 {
     return __C_contiguous(buf) ?
-        buf->end - buf->begin :
-        buf->end - buf->begin + (buf->data_end - buf->data);
+        (buf->end - buf->begin) :
+        (buf->end - buf->begin) + (buf->data_end - buf->data);
 }
 
 _funcspecs bool _C_empty(_C_t *buf)
