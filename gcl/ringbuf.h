@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,9 +61,23 @@ struct _C {
 /* This is a dummy macro used only during development. */
 #define _funcspecs
 
+_funcspecs _C_pos_t __C_pos(struct _C *buf, _T *ptr);
+_funcspecs _C_range_t __C_range(struct _C *buf, _T *begin, _T *end);
+_funcspecs void __C_ptr_inc(struct _C *buf, _T **ptr);
+_funcspecs void __C_ptr_dec(struct _C *buf, _T **ptr);
+_funcspecs _T *__C_ptr_add(struct _C *buf, _T *ptr, ptrdiff_t offset);
+_funcspecs _T *__C_ptr_sub(struct _C *buf, _T *ptr, ptrdiff_t offset);
+_funcspecs bool __C_valid_index(struct _C *buf, size_t i);
+_funcspecs bool __C_valid_ptr(struct _C *buf, _T *ptr);
+_funcspecs bool __C_valid_pos(struct _C *buf, struct _C_pos pos);
+_funcspecs bool __C_ptr_in_left_part(struct _C *buf, _T *ptr);
+_funcspecs bool __C_ptr_in_right_part(struct _C *buf, _T *ptr);
+_funcspecs _T *__C_ptr_of_index(struct _C *buf, size_t i);
+_funcspecs size_t __C_index_of_ptr(struct _C *buf, _T *ptr);
 _funcspecs bool __C_contiguous(struct _C *buf);
 _funcspecs void __C_move_data(_T *begin, _T *end, _T *dest);
 _funcspecs _T *__C_do_resize_grow(struct _C *buf, size_t n);
+_funcspecs _T *__C_grow(struct _C *buf);
 _funcspecs _T *init__C(struct _C *buf, size_t n, void (*destroy_elem)(_T));
 _funcspecs void destroy__C(struct _C *buf);
 _funcspecs size_t _C_length(_C_t *buf);
@@ -70,10 +85,100 @@ _funcspecs bool _C_empty(_C_t *buf);
 _funcspecs size_t _C_capacity(_C_t *buf);
 _funcspecs size_t _C_max_capacity(void);
 _funcspecs _T *_C_reserve(_C_t *buf, size_t n);
+_funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val);
+
+_funcspecs _C_pos_t __C_pos(struct _C *buf, _T *ptr)
+{
+    return (struct _C_pos) { .buf = buf, .ptr = ptr };
+}
+
+_funcspecs _C_range_t __C_range(struct _C *buf, _T *begin, _T *end)
+{
+    return (struct _C_range) { .buf = buf, .begin = begin, .end = end };
+}
+
+_funcspecs void __C_ptr_inc(struct _C *buf, _T **ptr)
+{
+    (*ptr)++;
+    if (*ptr == buf->data_end)
+        *ptr = buf->data;
+}
+
+_funcspecs void __C_ptr_dec(struct _C *buf, _T **ptr)
+{
+    if (*ptr == buf->data)
+        *ptr = buf->data_end;
+    (*ptr)--;
+}
+
+_funcspecs _T *__C_ptr_add(struct _C *buf, _T *ptr, ptrdiff_t offset)
+{
+    return ptr + (offset < buf->data_end - ptr ?
+                  offset :
+                  offset - (buf->data_end - buf->data));
+}
+
+_funcspecs _T *__C_ptr_sub(struct _C *buf, _T *ptr, ptrdiff_t offset)
+{
+    return ptr - (offset > ptr - buf->data ?
+                  offset - (buf->data_end - buf->data) :
+                  offset);
+}
+
+_funcspecs bool __C_valid_index(struct _C *buf, size_t i)
+{
+    return i < _C_length(buf);
+}
+
+_funcspecs bool __C_valid_ptr(struct _C *buf, _T *ptr)
+{
+    if (__C_contiguous(buf))
+        return ptr >= buf->begin && ptr <= buf->end;
+    else
+        return (ptr >= buf->begin && ptr < buf->data_end)
+            || (ptr >= buf->data && ptr <= buf->end);
+}
+
+_funcspecs bool __C_valid_pos(struct _C *buf, struct _C_pos pos)
+{
+    return pos.buf == buf && __C_valid_ptr(buf, pos.ptr);
+}
+
+_funcspecs bool __C_ptr_in_left_part(struct _C *buf, _T *ptr)
+{
+    assert(__C_valid_ptr(buf, ptr) && !__C_contiguous(buf));
+    return ptr >= buf->data && ptr <= buf->end;
+}
+
+_funcspecs bool __C_ptr_in_right_part(struct _C *buf, _T *ptr)
+{
+    assert(__C_valid_ptr(buf, ptr) && !__C_contiguous(buf));
+    return ptr >= buf->begin && ptr <= buf->data_end;
+}
+
+_funcspecs size_t __C_index_of_ptr(struct _C *buf, _T *ptr)
+{
+    assert(__C_valid_ptr(buf, ptr) && ptr != buf->end);
+    return __C_contiguous(buf) || __C_ptr_in_right_part(buf, ptr) ?
+        (ptr - buf->begin) :
+        (ptr - buf->data) + (buf->data_end - buf->begin);
+}
+
+_funcspecs _T *__C_ptr_of_index(struct _C *buf, size_t i)
+{
+    assert(__C_valid_index(buf, i));
+    return __C_ptr_add(buf, buf->begin, i);
+}
 
 _funcspecs bool __C_contiguous(struct _C *buf)
 {
     return buf->end - buf->begin >= 0;
+}
+
+_funcspecs bool __C_full(struct _C *buf)
+{
+    ptrdiff_t d = buf->end - buf->begin;
+    return d == _C_capacity(buf) - 1 || d == -1;
 }
 
 _funcspecs void __C_move_data(_T *begin, _T *end, _T *dest)
@@ -127,6 +232,20 @@ _funcspecs _T *__C_do_resize_grow(struct _C *buf, size_t n)
     buf->end = data + end;
 
     return data;
+}
+
+_funcspecs _T *__C_grow(struct _C *buf)
+{
+    size_t max_cap = _C_max_capacity();
+    size_t new_cap = _C_capacity(buf) * GCL_RINGBUF_GROWTH_FACTOR;
+
+    if (new_cap > max_cap - 1)
+        new_cap = max_cap;
+
+    if (new_cap <= _C_length(buf))
+        return NULL;
+
+    return __C_do_resize_grow(buf, new_cap);
 }
 
 _funcspecs _T *init__C(struct _C *buf, size_t n, void (*destroy_elem)(_T))
@@ -194,6 +313,38 @@ _funcspecs _T *_C_reserve(_C_t *buf, size_t n)
         return __C_do_resize_grow(buf, n);
     else
         return buf->data;
+}
+
+_funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val)
+{
+    assert(__C_valid_pos(buf, pos));
+
+    if (__C_full(buf)) {
+        size_t i = __C_index_of_ptr(buf, pos.ptr);
+        if (!__C_grow(buf)) {
+            GCL_ERROR(0, "Increasing ring buffer capacity failed");
+            return __C_pos(buf, NULL);
+        }
+        pos.ptr = __C_ptr_of_index(buf, i);
+    }
+
+    assert(_C_capacity(buf) > _C_length(buf));
+
+    bool shift_right = __C_contiguous(buf) ?
+        buf->begin == buf->data || buf->end - pos.ptr < pos.ptr - buf->begin :
+        __C_ptr_in_left_part(buf, pos.ptr);
+
+    if (shift_right) {
+        __C_move_data(pos.ptr, buf->end, pos.ptr + 1);
+        *pos.ptr = val;
+        __C_ptr_inc(buf, &buf->end);
+    } else {
+        __C_move_data(buf->begin, pos.ptr, buf->begin - 1);
+        *(--pos.ptr) = val;
+        __C_ptr_dec(buf, &buf->begin);
+    }
+
+    return pos;
 }
 
 #endif
