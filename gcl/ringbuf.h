@@ -86,6 +86,8 @@ _funcspecs size_t _C_capacity(_C_t *buf);
 _funcspecs size_t _C_max_capacity(void);
 _funcspecs _T *_C_reserve(_C_t *buf, size_t n);
 _funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val);
+_funcspecs _C_pos_t _C_insert_front(_C_t *buf, _T val);
+_funcspecs _C_pos_t _C_insert_back(_C_t *buf, _T val);
 
 _funcspecs _C_pos_t __C_pos(struct _C *buf, _T *ptr)
 {
@@ -346,5 +348,39 @@ _funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val)
 
     return pos;
 }
+
+_funcspecs _C_pos_t _C_insert_front(_C_t *buf, _T val)
+{
+    if (__C_full(buf)) {
+        if (!__C_grow(buf)) {
+            GCL_ERROR(0, "Increasing ring buffer capacity failed");
+            return __C_pos(buf, NULL);
+        }
+    }
+
+    assert(_C_capacity(buf) > _C_length(buf));
+
+    __C_ptr_dec(buf, &buf->begin);
+    *buf->begin = val;
+    return __C_pos(buf, buf->begin);
+}
+
+_funcspecs _C_pos_t _C_insert_back(_C_t *buf, _T val)
+{
+    if (__C_full(buf)) {
+        if (!__C_grow(buf)) {
+            GCL_ERROR(0, "Increasing ring buffer capacity failed");
+            return __C_pos(buf, NULL);
+        }
+    }
+
+    assert(_C_capacity(buf) > _C_length(buf));
+
+    *buf->end = val;
+    __C_ptr_inc(buf, &buf->end);
+    return __C_pos(buf, buf->end - 1);
+}
+
+
 
 #endif
