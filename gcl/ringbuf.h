@@ -99,6 +99,16 @@ _funcspecs _C_pos_t _C_next(_C_pos_t pos);
 _funcspecs _C_pos_t _C_prev(_C_pos_t pos);
 _funcspecs void _C_forward(_C_pos_t *pos);
 _funcspecs void _C_backward(_C_pos_t *pos);
+_funcspecs _C_range_t _C_all(_C_t *buf);
+_funcspecs _C_range_t _C_range(_C_pos_t begin, _C_pos_t end);
+_funcspecs _C_pos_t _C_range_begin(_C_range_t range);
+_funcspecs _C_pos_t _C_range_end(_C_range_t range);
+_funcspecs bool _C_range_at_begin(_C_range_t range, _C_pos_t pos);
+_funcspecs bool _C_range_at_end(_C_range_t range, _C_pos_t pos);
+_funcspecs _C_range_t _C_range_from_pos(_C_t *buf, _C_pos_t pos);
+_funcspecs _C_range_t _C_range_to_pos(_C_t *buf, _C_pos_t pos);
+_funcspecs size_t _C_range_length(_C_range_t range);
+_funcspecs bool _C_range_empty(_C_range_t range);
 _funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val);
 _funcspecs _C_pos_t _C_insert_front(_C_t *buf, _T val);
 _funcspecs _C_pos_t _C_insert_back(_C_t *buf, _T val);
@@ -402,6 +412,61 @@ _funcspecs void _C_forward(_C_pos_t *pos)
 _funcspecs void _C_backward(_C_pos_t *pos)
 {
     __C_ptr_dec(pos->buf, &pos->ptr);
+}
+
+_funcspecs _C_range_t _C_all(_C_t *buf)
+{
+    return __C_range(buf, buf->begin, buf->end);
+}
+
+_funcspecs _C_range_t _C_range(_C_pos_t begin, _C_pos_t end)
+{
+    assert(begin.buf == end.buf);
+    return __C_range(begin.buf, begin.ptr, end.ptr);
+}
+
+_funcspecs _C_pos_t _C_range_begin(_C_range_t range)
+{
+    return __C_pos(range.buf, range.begin);
+}
+
+_funcspecs _C_pos_t _C_range_end(_C_range_t range)
+{
+    return __C_pos(range.buf, range.end);
+}
+
+_funcspecs bool _C_range_at_begin(_C_range_t range, _C_pos_t pos)
+{
+    return pos.ptr == range.begin;
+}
+
+_funcspecs bool _C_range_at_end(_C_range_t range, _C_pos_t pos)
+{
+    return pos.ptr == range.end;
+}
+
+_funcspecs _C_range_t _C_range_from_pos(_C_t *buf, _C_pos_t pos)
+{
+    assert(__C_valid_pos(buf, pos));
+    return __C_range(buf, pos.ptr, buf->end);
+}
+
+_funcspecs _C_range_t _C_range_to_pos(_C_t *buf, _C_pos_t pos)
+{
+    assert(__C_valid_pos(buf, pos));
+    return __C_range(buf, buf->begin, pos.ptr);
+}
+
+_funcspecs size_t _C_range_length(_C_range_t range)
+{
+    return range.end - range.begin >= 0 ?
+        (range.end - range.begin) :
+        (range.end - range.begin) + (range.buf->data_end - range.buf->data);
+}
+
+_funcspecs bool _C_range_empty(_C_range_t range)
+{
+    return range.begin == range.end;
 }
 
 _funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val)
