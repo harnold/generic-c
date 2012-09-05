@@ -112,6 +112,10 @@ _funcspecs bool _C_range_empty(_C_range_t range);
 _funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val);
 _funcspecs _C_pos_t _C_insert_front(_C_t *buf, _T val);
 _funcspecs _C_pos_t _C_insert_back(_C_t *buf, _T val);
+_funcspecs _C_pos_t _C_release(_C_t *buf, _C_pos_t pos);
+_funcspecs _C_pos_t _C_remove(_C_t *buf, _C_pos_t pos);
+_funcspecs void _C_remove_front(_C_t *buf);
+_funcspecs void _C_remove_back(_C_t *buf);
 _funcspecs void _C_clear(_C_t *buf);
 
 _funcspecs _C_pos_t __C_pos(struct _C *buf, _T *ptr)
@@ -534,6 +538,47 @@ _funcspecs _C_pos_t _C_insert_back(_C_t *buf, _T val)
     *buf->end = val;
     __C_ptr_inc(buf, &buf->end);
     return __C_pos(buf, buf->end - 1);
+}
+
+_funcspecs _C_pos_t _C_release(_C_t *buf, _C_pos_t pos)
+{
+    assert(__C_valid_pos(buf, pos) && !_C_at_end(buf, pos));
+
+    bool shift_right = __C_contiguous(buf) ?
+        pos.ptr - buf->begin < buf->end - pos.ptr :
+        __C_ptr_in_right_part(buf, pos.ptr);
+
+    if (shift_right) {
+        __C_move_data(buf->begin, pos.ptr, buf->begin + 1);
+        __C_ptr_inc(buf, &buf->begin);
+    } else {
+        __C_move_data(pos.ptr + 1, buf->end, pos.ptr);
+        __C_ptr_dec(buf, &buf->end);
+    }
+
+    return pos;
+}
+
+_funcspecs _C_pos_t _C_remove(_C_t *buf, _C_pos_t pos)
+{
+    assert(__C_valid_pos(buf, pos) && !_C_at_end(buf, pos));
+
+    if (buf->destroy_elem)
+        buf->destroy_elem(*pos.ptr);
+
+    return _C_release(buf, pos);
+}
+
+_funcspecs void _C_remove_front(_C_t *buf)
+{
+    assert(!_C_empty(buf));
+    _C_remove(buf, _C_begin(buf));
+}
+
+_funcspecs void _C_remove_back(_C_t *buf)
+{
+    assert(!_C_empty(buf));
+    _C_remove(buf, _C_end(buf));
 }
 
 _funcspecs void _C_clear(_C_t *buf)
