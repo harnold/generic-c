@@ -204,7 +204,7 @@ _funcspecs bool __C_contiguous(struct _C *buf)
 _funcspecs bool __C_full(struct _C *buf)
 {
     ptrdiff_t d = buf->end - buf->begin;
-    return d == _C_capacity(buf) - 1 || d == -1;
+    return (d >= 0 && d == _C_capacity(buf) - 1) || d == -1;
 }
 
 _funcspecs void __C_move_data(_T *begin, _T *end, _T *dest)
