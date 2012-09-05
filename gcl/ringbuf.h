@@ -263,13 +263,15 @@ _funcspecs _T *__C_do_resize_grow(struct _C *buf, size_t n)
 _funcspecs _T *__C_grow(struct _C *buf)
 {
     size_t max_cap = _C_max_capacity();
-    size_t new_cap = _C_capacity(buf) * GCL_RINGBUF_GROWTH_FACTOR;
+    size_t old_cap = _C_capacity(buf);
 
-    if (new_cap > max_cap - 1)
-        new_cap = max_cap;
-
-    if (new_cap <= _C_length(buf))
+    if (old_cap == max_cap)
         return NULL;
+
+    size_t new_cap = (size_t) ((old_cap + 1) * GCL_RINGBUF_GROWTH_FACTOR) - 1;
+
+    if (new_cap > max_cap)
+        new_cap = max_cap;
 
     return __C_do_resize_grow(buf, new_cap);
 }
@@ -532,7 +534,5 @@ _funcspecs _C_pos_t _C_insert_back(_C_t *buf, _T val)
     __C_ptr_inc(buf, &buf->end);
     return __C_pos(buf, buf->end - 1);
 }
-
-
 
 #endif
