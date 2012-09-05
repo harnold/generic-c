@@ -112,6 +112,7 @@ _funcspecs bool _C_range_empty(_C_range_t range);
 _funcspecs _C_pos_t _C_insert(_C_t *buf, _C_pos_t pos, _T val);
 _funcspecs _C_pos_t _C_insert_front(_C_t *buf, _T val);
 _funcspecs _C_pos_t _C_insert_back(_C_t *buf, _T val);
+_funcspecs void _C_clear(_C_t *buf);
 
 _funcspecs _C_pos_t __C_pos(struct _C *buf, _T *ptr)
 {
@@ -533,6 +534,19 @@ _funcspecs _C_pos_t _C_insert_back(_C_t *buf, _T val)
     *buf->end = val;
     __C_ptr_inc(buf, &buf->end);
     return __C_pos(buf, buf->end - 1);
+}
+
+_funcspecs void _C_clear(_C_t *buf)
+{
+    _T *ptr;
+
+    if (buf->destroy_elem) {
+        _gcl_ringbuf_for_each_ptr(ptr, buf)
+            buf->destroy_elem(*ptr);
+    }
+
+    buf->begin = buf->data;
+    buf->end = buf->data;
 }
 
 #endif
