@@ -63,6 +63,7 @@ struct _C {
 
 /* Long functions */
 
+_funcspecs _T *__C_do_resize_shrink(struct _C *buf, size_t n);
 _funcspecs _T *__C_do_resize_grow(struct _C *buf, size_t n);
 _funcspecs _T *__C_grow(struct _C *buf);
 _funcspecs _T *init__C(struct _C *buf, size_t n, void (*destroy_elem)(_T));
@@ -97,6 +98,7 @@ _funcspecs bool _C_empty(_C_t *buf);
 _funcspecs size_t _C_capacity(_C_t *buf);
 _funcspecs size_t _C_max_capacity(void);
 _funcspecs _T *_C_reserve(_C_t *buf, size_t n);
+_funcspecs _T *_C_shrink(_C_t *buf);
 _funcspecs _T _C_front(_C_t *buf);
 _funcspecs _T _C_back(_C_t *buf);
 _funcspecs _T _C_at(_C_t *buf, size_t i);
