@@ -223,6 +223,46 @@ _funcspecs void __C_move_data(_T *begin, _T *end, _T *dest)
         memmove(dest, begin, n * sizeof(_T));
 }
 
+_funcspecs _T *__C_do_resize_shrink(struct _C *buf, size_t n)
+{
+    assert(n >= _C_length(buf) && n <= _C_capacity(buf));
+
+    if (n < GCL_RINGBUF_MINIMAL_CAPACITY)
+        n = GCL_RINGBUF_MINIMAL_CAPACITY;
+
+    if (n == _C_capacity(buf))
+        return buf->data;
+
+    size_t begin = (size_t) (buf->begin - buf->data);
+    size_t end = (size_t) (buf->end - buf->data);
+
+    if (__C_contiguous(buf)) {
+        if (end > n) {
+            __C_move_data(buf->begin, buf->end, buf->data);
+            begin = 0;
+            end = (size_t) (buf->end - buf->begin);
+        }
+    } else {
+        _T *new_begin = buf->data + (n + 1) - (buf->data_end - buf->begin);
+        __C_move_data(buf->begin, buf->data_end, new_begin);
+        begin = (size_t) (new_begin - buf->data);
+    }
+
+    _T *data = realloc(buf->data, (n + 1) * sizeof(_T));
+
+    if (!data) {
+        GCL_ERROR(errno, "Reallocating memory for ring buffer failed");
+        return NULL;
+    }
+
+    buf->data = data;
+    buf->data_end = data + (n + 1);
+    buf->begin = data + begin;
+    buf->end = data + end;
+
+    return data;
+}
+
 _funcspecs _T *__C_do_resize_grow(struct _C *buf, size_t n)
 {
     assert(n >= _C_capacity(buf) && n <= _C_max_capacity());
@@ -349,6 +389,11 @@ _funcspecs _T *_C_reserve(_C_t *buf, size_t n)
         return __C_do_resize_grow(buf, n);
     else
         return buf->data;
+}
+
+_funcspecs _T *_C_shrink(_C_t *buf)
+{
+    return __C_do_resize_shrink(buf, _C_length(buf));
 }
 
 _funcspecs _T _C_front(_C_t *buf)
