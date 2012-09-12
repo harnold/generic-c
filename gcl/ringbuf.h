@@ -248,18 +248,20 @@ _funcspecs _T *__C_do_resize_grow(struct _C *buf, size_t n)
 
         size_t left_part = end;
         size_t right_part = data_end - begin;
+        size_t size_delta = (n + 1) - data_end;
 
-        if (left_part < right_part && left_part < n - data_end) {
+        if (left_part < right_part && left_part < size_delta) {
             __C_move_data(data, data + end, data + data_end);
             end += data_end;
         } else {
-            __C_move_data(data + begin, data + data_end, data + n - right_part);
-            begin += n - data_end;
+            __C_move_data(data + begin, data + data_end,
+                          data + (n + 1) - right_part);
+            begin += size_delta;
         }
     }
 
     buf->data = data;
-    buf->data_end = data + n;
+    buf->data_end = data + (n + 1);
     buf->begin = data + begin;
     buf->end = data + end;
 
