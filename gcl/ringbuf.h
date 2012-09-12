@@ -75,6 +75,7 @@ _funcspecs bool __C_ptr_in_right_part(struct _C *buf, _T *ptr);
 _funcspecs _T *__C_ptr_of_index(struct _C *buf, size_t i);
 _funcspecs size_t __C_index_of_ptr(struct _C *buf, _T *ptr);
 _funcspecs bool __C_contiguous(struct _C *buf);
+_funcspecs bool __C_full(struct _C *buf);
 _funcspecs void __C_move_data(_T *begin, _T *end, _T *dest);
 _funcspecs _T *__C_do_resize_grow(struct _C *buf, size_t n);
 _funcspecs _T *__C_grow(struct _C *buf);
