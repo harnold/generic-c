@@ -479,12 +479,8 @@ _funcspecs bool _##_C##_full(struct _C *buf) \
 \
 _funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest) \
 { \
-    assert(begin <= end); \
-\
-    size_t n = (size_t) (end - begin); \
-\
-    if (n > 0) \
-        memmove(dest, begin, n * sizeof(_T)); \
+    if (begin < end) \
+        memmove(dest, begin, (end - begin) * sizeof(_T)); \
 } \
 \
 _funcspecs size_t _C##_length(_C##_t *buf) \

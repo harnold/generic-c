@@ -300,12 +300,8 @@ _funcspecs size_t _C##_max_capacity(void) \
 \
 _funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest) \
 { \
-    assert(begin <= end); \
-\
-    size_t n = (size_t) (end - begin); \
-\
-    if (n != 0) \
-        memmove(dest, begin, n * sizeof(_T)); \
+    if (begin < end) \
+        memmove(dest, begin, (end - begin) * sizeof(_T)); \
 } \
 \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *vec) \
