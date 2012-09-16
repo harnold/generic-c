@@ -85,7 +85,6 @@ _funcspecs bool _##_C##_valid_index(struct _C *vec, size_t i); \
 _funcspecs bool _##_C##_valid_pos(struct _C *vec, _T *pos); \
 _funcspecs size_t _##_C##_index_of_pos(struct _C *vec, _T *pos); \
 _funcspecs _C##_pos_t _##_C##_pos_of_index(struct _C *vec, size_t i); \
-_funcspecs size_t _##_C##_max_capacity(void); \
 _funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest); \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *vec); \
 _funcspecs _C##_pos_t _C##_end(_C##_t *vec); \
@@ -102,6 +101,7 @@ _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *vec, _C##_pos_t pos); \
 _funcspecs size_t _C##_range_length(_C##_range_t range); \
 _funcspecs bool _C##_range_empty(_C##_range_t range); \
 _funcspecs size_t _C##_capacity(_C##_t *vec); \
+_funcspecs size_t _C##_max_capacity(void); \
 _funcspecs size_t _C##_length(_C##_t *vec); \
 _funcspecs bool _C##_empty(_C##_t *vec); \
 _funcspecs _T *_C##_reserve(_C##_t *vec, size_t n); \
@@ -150,7 +150,7 @@ _funcspecs _T *_##_C##_grow(struct _C *vec, size_t n) \
 { \
     assert(n > _gcl_vector_length(vec)); \
 \
-    size_t max_cap = _##_C##_max_capacity(); \
+    size_t max_cap = _C##_max_capacity(); \
     size_t new_cap; \
 \
     if (n > max_cap) \
@@ -293,7 +293,7 @@ _funcspecs _C##_pos_t _##_C##_pos_of_index(struct _C *vec, size_t i) \
     return _gcl_vector_begin(vec) + i; \
 } \
 \
-_funcspecs size_t _##_C##_max_capacity(void) \
+_funcspecs size_t _C##_max_capacity(void) \
 { \
     return (size_t) (SIZE_MAX / (GCL_VECTOR_GROWTH_FACTOR * sizeof(_T))); \
 } \
@@ -398,7 +398,7 @@ _funcspecs bool _C##_empty(_C##_t *vec) \
 \
 _funcspecs _T *_C##_reserve(_C##_t *vec, size_t n) \
 { \
-    assert(n <= _##_C##_max_capacity()); \
+    assert(n <= _C##_max_capacity()); \
  \
     if (n > _gcl_vector_capacity(vec)) \
         return _##_C##_do_resize(vec, n); \
