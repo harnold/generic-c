@@ -86,36 +86,36 @@ _funcspecs bool _##_C##_valid_pos(struct _C *vec, _T *pos); \
 _funcspecs size_t _##_C##_index_of_pos(struct _C *vec, _T *pos); \
 _funcspecs _C##_pos_t _##_C##_pos_of_index(struct _C *vec, size_t i); \
 _funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest); \
+_funcspecs size_t _C##_length(_C##_t *vec); \
+_funcspecs bool _C##_empty(_C##_t *vec); \
+_funcspecs size_t _C##_capacity(_C##_t *vec); \
+_funcspecs size_t _C##_max_capacity(void); \
+_funcspecs _T *_C##_reserve(_C##_t *vec, size_t n); \
+_funcspecs _T *_C##_shrink(_C##_t *vec); \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *vec); \
 _funcspecs _C##_pos_t _C##_end(_C##_t *vec); \
 _funcspecs bool _C##_at_begin(_C##_t *vec, _C##_pos_t pos); \
 _funcspecs bool _C##_at_end(_C##_t *vec, _C##_pos_t pos); \
-_funcspecs _C##_range_t _C##_all(_C##_t *vec); \
+_funcspecs _C##_pos_t _C##_next(_C##_pos_t pos); \
+_funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos); \
+_funcspecs void _C##_forward(_C##_pos_t *pos); \
+_funcspecs void _C##_backward(_C##_pos_t *pos); \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end); \
 _funcspecs _C##_pos_t _C##_range_begin(_C##_range_t range); \
 _funcspecs _C##_pos_t _C##_range_end(_C##_range_t range); \
 _funcspecs bool _C##_range_at_begin(_C##_range_t range, _C##_pos_t pos); \
 _funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos); \
+_funcspecs _C##_range_t _C##_all(_C##_t *vec); \
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *vec, _C##_pos_t pos); \
 _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *vec, _C##_pos_t pos); \
 _funcspecs size_t _C##_range_length(_C##_range_t range); \
 _funcspecs bool _C##_range_empty(_C##_range_t range); \
-_funcspecs size_t _C##_capacity(_C##_t *vec); \
-_funcspecs size_t _C##_max_capacity(void); \
-_funcspecs size_t _C##_length(_C##_t *vec); \
-_funcspecs bool _C##_empty(_C##_t *vec); \
-_funcspecs _T *_C##_reserve(_C##_t *vec, size_t n); \
-_funcspecs _T *_C##_shrink(_C##_t *vec); \
 _funcspecs _T _C##_front(_C##_t *vec); \
 _funcspecs _T _C##_back(_C##_t *vec); \
 _funcspecs _T _C##_at(_C##_t *vec, size_t i); \
 _funcspecs _T _C##_get(_C##_pos_t pos); \
 _funcspecs _T *_C##_get_ptr(_C##_pos_t pos); \
 _funcspecs void _C##_set(_C##_pos_t pos, _T val); \
-_funcspecs _C##_pos_t _C##_next(_C##_pos_t pos); \
-_funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos); \
-_funcspecs void _C##_forward(_C##_pos_t *pos); \
-_funcspecs void _C##_backward(_C##_pos_t *pos); \
 _funcspecs _C##_pos_t _C##_insert_front(_C##_t *vec, _T val); \
 _funcspecs void _C##_remove_front(_C##_t *vec); \
 _funcspecs void _C##_remove_back(_C##_t *vec);
@@ -124,7 +124,7 @@ _funcspecs void _C##_remove_back(_C##_t *vec);
 \
 _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
 { \
-    assert(n >= _gcl_vector_length(vec) && n <= _##_C##_max_capacity()); \
+    assert(n >= _gcl_vector_length(vec) && n <= _C##_max_capacity()); \
 \
     size_t length = _gcl_vector_length(vec); \
     _T *data; \
@@ -293,15 +293,45 @@ _funcspecs _C##_pos_t _##_C##_pos_of_index(struct _C *vec, size_t i) \
     return _gcl_vector_begin(vec) + i; \
 } \
 \
+_funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest) \
+{ \
+    if (begin < end) \
+        memmove(dest, begin, (end - begin) * sizeof(_T)); \
+} \
+\
+_funcspecs size_t _C##_length(_C##_t *vec) \
+{ \
+    return _gcl_vector_length(vec); \
+} \
+\
+_funcspecs bool _C##_empty(_C##_t *vec) \
+{ \
+    return _gcl_vector_length(vec) == 0; \
+} \
+\
+_funcspecs size_t _C##_capacity(_C##_t *vec) \
+{ \
+    return _gcl_vector_capacity(vec); \
+} \
+\
 _funcspecs size_t _C##_max_capacity(void) \
 { \
     return (size_t) (SIZE_MAX / (GCL_VECTOR_GROWTH_FACTOR * sizeof(_T))); \
 } \
 \
-_funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest) \
+_funcspecs _T *_C##_reserve(_C##_t *vec, size_t n) \
 { \
-    if (begin < end) \
-        memmove(dest, begin, (end - begin) * sizeof(_T)); \
+    assert(n <= _C##_max_capacity()); \
+ \
+    if (n > _gcl_vector_capacity(vec)) \
+        return _##_C##_do_resize(vec, n); \
+    else \
+        return vec->data; \
+} \
+\
+_funcspecs _T *_C##_shrink(_C##_t *vec) \
+{ \
+    return _##_C##_do_resize(vec, _gcl_vector_length(vec)); \
 } \
 \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *vec) \
@@ -324,9 +354,24 @@ _funcspecs bool _C##_at_end(_C##_t *vec, _C##_pos_t pos) \
     return pos == _gcl_vector_end(vec); \
 } \
 \
-_funcspecs _C##_range_t _C##_all(_C##_t *vec) \
+_funcspecs _C##_pos_t _C##_next(_C##_pos_t pos) \
 { \
-    return (struct _C##_range) { _gcl_vector_begin(vec), _gcl_vector_end(vec) }; \
+    return pos + 1; \
+} \
+\
+_funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos) \
+{ \
+    return pos - 1; \
+} \
+\
+_funcspecs void _C##_forward(_C##_pos_t *pos) \
+{ \
+    (*pos)++; \
+} \
+\
+_funcspecs void _C##_backward(_C##_pos_t *pos) \
+{ \
+    (*pos)--; \
 } \
 \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end) \
@@ -354,6 +399,11 @@ _funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos) \
     return pos == range.end; \
 } \
 \
+_funcspecs _C##_range_t _C##_all(_C##_t *vec) \
+{ \
+    return (struct _C##_range) { _gcl_vector_begin(vec), _gcl_vector_end(vec) }; \
+} \
+\
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *vec, _C##_pos_t pos) \
 { \
     assert(_##_C##_valid_pos(vec, pos)); \
@@ -375,36 +425,6 @@ _funcspecs size_t _C##_range_length(_C##_range_t range) \
 _funcspecs bool _C##_range_empty(_C##_range_t range) \
 { \
     return range.begin == range.end; \
-} \
-\
-_funcspecs size_t _C##_capacity(_C##_t *vec) \
-{ \
-    return _gcl_vector_capacity(vec); \
-} \
-\
-_funcspecs size_t _C##_length(_C##_t *vec) \
-{ \
-    return _gcl_vector_length(vec); \
-} \
-\
-_funcspecs bool _C##_empty(_C##_t *vec) \
-{ \
-    return _gcl_vector_length(vec) == 0; \
-} \
-\
-_funcspecs _T *_C##_reserve(_C##_t *vec, size_t n) \
-{ \
-    assert(n <= _C##_max_capacity()); \
- \
-    if (n > _gcl_vector_capacity(vec)) \
-        return _##_C##_do_resize(vec, n); \
-    else \
-        return vec->data; \
-} \
-\
-_funcspecs _T *_C##_shrink(_C##_t *vec) \
-{ \
-    return _##_C##_do_resize(vec, _gcl_vector_length(vec)); \
 } \
 \
 _funcspecs _T _C##_front(_C##_t *vec) \
@@ -438,26 +458,6 @@ _funcspecs _T *_C##_get_ptr(_C##_pos_t pos) \
 _funcspecs void _C##_set(_C##_pos_t pos, _T val) \
 { \
     *pos = val; \
-} \
-\
-_funcspecs _C##_pos_t _C##_next(_C##_pos_t pos) \
-{ \
-    return pos + 1; \
-} \
-\
-_funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos) \
-{ \
-    return pos - 1; \
-} \
-\
-_funcspecs void _C##_forward(_C##_pos_t *pos) \
-{ \
-    (*pos)++; \
-} \
-\
-_funcspecs void _C##_backward(_C##_pos_t *pos) \
-{ \
-    (*pos)--; \
 } \
 \
 _funcspecs _C##_pos_t _C##_insert_front(_C##_t *vec, _T val) \

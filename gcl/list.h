@@ -82,29 +82,29 @@ _funcspecs void _C##_splice(_C##_t *dest_list, _C##_pos_t pos, _C##_t *src_list,
 _funcspecs void init_##_C(struct _C *list, void (*destroy_elem)(_T)); \
 _funcspecs void _C##_link_nodes(struct _C##_node *prev, struct _C##_node *next); \
 _funcspecs void _C##_unlink_node(struct _C##_node* node); \
+_funcspecs bool _C##_empty(_C##_t *list); \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *list); \
 _funcspecs _C##_pos_t _C##_end(_C##_t *list); \
 _funcspecs bool _C##_at_begin(_C##_t *list, _C##_pos_t pos); \
 _funcspecs bool _C##_at_end(_C##_t *list, _C##_pos_t pos); \
-_funcspecs _C##_range_t _C##_all(_C##_t *list); \
+_funcspecs _C##_pos_t _C##_next(_C##_pos_t pos); \
+_funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos); \
+_funcspecs void _C##_forward(_C##_pos_t *pos); \
+_funcspecs void _C##_backward(_C##_pos_t *pos); \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end); \
 _funcspecs _C##_pos_t _C##_range_begin(_C##_range_t range); \
 _funcspecs _C##_pos_t _C##_range_end(_C##_range_t range); \
 _funcspecs bool _C##_range_at_begin(_C##_range_t range, _C##_pos_t pos); \
 _funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos); \
+_funcspecs _C##_range_t _C##_all(_C##_t *list); \
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *list, _C##_pos_t pos); \
 _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *list, _C##_pos_t pos); \
 _funcspecs bool _C##_range_empty(_C##_range_t range); \
-_funcspecs bool _C##_empty(_C##_t *list); \
 _funcspecs _T _C##_front(_C##_t *list); \
 _funcspecs _T _C##_back(_C##_t *list); \
 _funcspecs _T _C##_get(_C##_pos_t pos); \
 _funcspecs _T *_C##_get_ptr(_C##_pos_t pos); \
 _funcspecs void _C##_set(_C##_pos_t pos, _T val); \
-_funcspecs _C##_pos_t _C##_next(_C##_pos_t pos); \
-_funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos); \
-_funcspecs void _C##_forward(_C##_pos_t *pos); \
-_funcspecs void _C##_backward(_C##_pos_t *pos); \
 _funcspecs _C##_pos_t _C##_insert_front(_C##_t *list, _T val); \
 _funcspecs _C##_pos_t _C##_insert_back(_C##_t *list, _T val); \
 _funcspecs void _C##_remove_front(_C##_t *list); \
@@ -216,6 +216,11 @@ _funcspecs void _C##_unlink_node(struct _C##_node* node) \
     _C##_link_nodes(node->prev, node->next); \
 } \
 \
+_funcspecs bool _C##_empty(_C##_t *list) \
+{ \
+    return _gcl_list_begin(list) == _gcl_list_end(list); \
+} \
+\
 _funcspecs _C##_pos_t _C##_begin(_C##_t *list) \
 { \
     return _gcl_list_begin(list); \
@@ -236,9 +241,24 @@ _funcspecs bool _C##_at_end(_C##_t *list, _C##_pos_t pos) \
     return pos == _gcl_list_end(list); \
 } \
 \
-_funcspecs _C##_range_t _C##_all(_C##_t *list) \
+_funcspecs _C##_pos_t _C##_next(_C##_pos_t pos) \
 { \
-    return (struct _C##_range) { _gcl_list_begin(list), _gcl_list_end(list) }; \
+    return pos->next; \
+} \
+\
+_funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos) \
+{ \
+    return pos->prev; \
+} \
+\
+_funcspecs void _C##_forward(_C##_pos_t *pos) \
+{ \
+    *pos = (*pos)->next; \
+} \
+\
+_funcspecs void _C##_backward(_C##_pos_t *pos) \
+{ \
+    *pos = (*pos)->prev; \
 } \
 \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end) \
@@ -266,6 +286,11 @@ _funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos) \
     return pos == range.end; \
 } \
 \
+_funcspecs _C##_range_t _C##_all(_C##_t *list) \
+{ \
+    return (struct _C##_range) { _gcl_list_begin(list), _gcl_list_end(list) }; \
+} \
+\
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *list, _C##_pos_t pos) \
 { \
     return (struct _C##_range) { pos, _gcl_list_end(list) }; \
@@ -279,11 +304,6 @@ _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *list, _C##_pos_t pos) \
 _funcspecs bool _C##_range_empty(_C##_range_t range) \
 { \
     return range.begin == range.end; \
-} \
-\
-_funcspecs bool _C##_empty(_C##_t *list) \
-{ \
-    return _gcl_list_begin(list) == _gcl_list_end(list); \
 } \
 \
 _funcspecs _T _C##_front(_C##_t *list) \
@@ -311,26 +331,6 @@ _funcspecs _T *_C##_get_ptr(_C##_pos_t pos) \
 _funcspecs void _C##_set(_C##_pos_t pos, _T val) \
 { \
     pos->elem = val; \
-} \
-\
-_funcspecs _C##_pos_t _C##_next(_C##_pos_t pos) \
-{ \
-    return pos->next; \
-} \
-\
-_funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos) \
-{ \
-    return pos->prev; \
-} \
-\
-_funcspecs void _C##_forward(_C##_pos_t *pos) \
-{ \
-    *pos = (*pos)->next; \
-} \
-\
-_funcspecs void _C##_backward(_C##_pos_t *pos) \
-{ \
-    *pos = (*pos)->prev; \
 } \
 \
 _funcspecs _C##_pos_t _C##_insert_front(_C##_t *list, _T val) \

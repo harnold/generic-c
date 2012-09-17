@@ -110,30 +110,30 @@ _funcspecs size_t _C##_capacity(_C##_t *buf); \
 _funcspecs size_t _C##_max_capacity(void); \
 _funcspecs _T *_C##_reserve(_C##_t *buf, size_t n); \
 _funcspecs _T *_C##_shrink(_C##_t *buf); \
-_funcspecs _T _C##_front(_C##_t *buf); \
-_funcspecs _T _C##_back(_C##_t *buf); \
-_funcspecs _T _C##_at(_C##_t *buf, size_t i); \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *buf); \
 _funcspecs _C##_pos_t _C##_end(_C##_t *buf); \
 _funcspecs bool _C##_at_begin(_C##_t *buf, _C##_pos_t pos); \
 _funcspecs bool _C##_at_end(_C##_t *buf, _C##_pos_t pos); \
-_funcspecs _T _C##_get(_C##_pos_t pos); \
-_funcspecs _T *_C##_get_ptr(_C##_pos_t pos); \
-_funcspecs void _C##_set(_C##_pos_t pos, _T val); \
 _funcspecs _C##_pos_t _C##_next(_C##_pos_t pos); \
 _funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos); \
 _funcspecs void _C##_forward(_C##_pos_t *pos); \
 _funcspecs void _C##_backward(_C##_pos_t *pos); \
-_funcspecs _C##_range_t _C##_all(_C##_t *buf); \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end); \
 _funcspecs _C##_pos_t _C##_range_begin(_C##_range_t range); \
 _funcspecs _C##_pos_t _C##_range_end(_C##_range_t range); \
 _funcspecs bool _C##_range_at_begin(_C##_range_t range, _C##_pos_t pos); \
 _funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos); \
+_funcspecs _C##_range_t _C##_all(_C##_t *buf); \
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *buf, _C##_pos_t pos); \
 _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *buf, _C##_pos_t pos); \
 _funcspecs size_t _C##_range_length(_C##_range_t range); \
 _funcspecs bool _C##_range_empty(_C##_range_t range); \
+_funcspecs _T _C##_front(_C##_t *buf); \
+_funcspecs _T _C##_back(_C##_t *buf); \
+_funcspecs _T _C##_at(_C##_t *buf, size_t i); \
+_funcspecs _T _C##_get(_C##_pos_t pos); \
+_funcspecs _T *_C##_get_ptr(_C##_pos_t pos); \
+_funcspecs void _C##_set(_C##_pos_t pos, _T val); \
 _funcspecs void _C##_remove_front(_C##_t *buf); \
 _funcspecs void _C##_remove_back(_C##_t *buf);
 
@@ -520,24 +520,6 @@ _funcspecs _T *_C##_shrink(_C##_t *buf) \
     return _##_C##_do_resize_shrink(buf, _C##_length(buf)); \
 } \
 \
-_funcspecs _T _C##_front(_C##_t *buf) \
-{ \
-    assert(!_C##_empty(buf)); \
-    return *buf->begin; \
-} \
-\
-_funcspecs _T _C##_back(_C##_t *buf) \
-{ \
-    assert(!_C##_empty(buf)); \
-    return *_##_C##_ptr_sub(buf, buf->end, 1); \
-} \
-\
-_funcspecs _T _C##_at(_C##_t *buf, size_t i) \
-{ \
-    assert(_##_C##_valid_index(buf, i)); \
-    return *_##_C##_ptr_add(buf, buf->begin, i); \
-} \
-\
 _funcspecs _C##_pos_t _C##_begin(_C##_t *buf) \
 { \
     return _##_C##_pos(buf, buf->begin); \
@@ -558,21 +540,6 @@ _funcspecs bool _C##_at_end(_C##_t *buf, _C##_pos_t pos) \
     return pos.ptr == buf->end; \
 } \
 \
-_funcspecs _T _C##_get(_C##_pos_t pos) \
-{ \
-    return *pos.ptr; \
-} \
-\
-_funcspecs _T *_C##_get_ptr(_C##_pos_t pos) \
-{ \
-    return pos.ptr; \
-} \
-\
-_funcspecs void _C##_set(_C##_pos_t pos, _T val) \
-{ \
-    *pos.ptr = val; \
-} \
-\
 _funcspecs _C##_pos_t _C##_next(_C##_pos_t pos) \
 { \
     return _##_C##_pos(pos.buf, _##_C##_ptr_add(pos.buf, pos.ptr, 1)); \
@@ -591,11 +558,6 @@ _funcspecs void _C##_forward(_C##_pos_t *pos) \
 _funcspecs void _C##_backward(_C##_pos_t *pos) \
 { \
     _##_C##_ptr_dec(pos->buf, &pos->ptr); \
-} \
-\
-_funcspecs _C##_range_t _C##_all(_C##_t *buf) \
-{ \
-    return _##_C##_range(buf, buf->begin, buf->end); \
 } \
 \
 _funcspecs _C##_range_t _C##_range(_C##_pos_t begin, _C##_pos_t end) \
@@ -624,6 +586,11 @@ _funcspecs bool _C##_range_at_end(_C##_range_t range, _C##_pos_t pos) \
     return pos.ptr == range.end; \
 } \
 \
+_funcspecs _C##_range_t _C##_all(_C##_t *buf) \
+{ \
+    return _##_C##_range(buf, buf->begin, buf->end); \
+} \
+\
 _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *buf, _C##_pos_t pos) \
 { \
     assert(_##_C##_valid_pos(buf, pos)); \
@@ -646,6 +613,39 @@ _funcspecs size_t _C##_range_length(_C##_range_t range) \
 _funcspecs bool _C##_range_empty(_C##_range_t range) \
 { \
     return range.begin == range.end; \
+} \
+\
+_funcspecs _T _C##_front(_C##_t *buf) \
+{ \
+    assert(!_C##_empty(buf)); \
+    return *buf->begin; \
+} \
+\
+_funcspecs _T _C##_back(_C##_t *buf) \
+{ \
+    assert(!_C##_empty(buf)); \
+    return *_##_C##_ptr_sub(buf, buf->end, 1); \
+} \
+\
+_funcspecs _T _C##_at(_C##_t *buf, size_t i) \
+{ \
+    assert(_##_C##_valid_index(buf, i)); \
+    return *_##_C##_ptr_add(buf, buf->begin, i); \
+} \
+\
+_funcspecs _T _C##_get(_C##_pos_t pos) \
+{ \
+    return *pos.ptr; \
+} \
+\
+_funcspecs _T *_C##_get_ptr(_C##_pos_t pos) \
+{ \
+    return pos.ptr; \
+} \
+\
+_funcspecs void _C##_set(_C##_pos_t pos, _T val) \
+{ \
+    *pos.ptr = val; \
 } \
 \
 _funcspecs void _C##_remove_front(_C##_t *buf) \
