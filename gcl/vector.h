@@ -70,7 +70,7 @@ struct _C { \
 #define GCL_GENERATE_VECTOR_LONG_FUNCTION_DECLS(_C, _T, _funcspecs) \
 \
 _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n); \
-_funcspecs _T *_##_C##_grow(struct _C *vec, size_t n); \
+_funcspecs _T *_##_C##_grow(struct _C *vec); \
 _funcspecs _T *init_##_C(struct _C *vec, size_t n, void (*destroy_elem)(_T)); \
 _funcspecs void destroy_##_C(struct _C *vec); \
 _funcspecs _C##_pos_t _C##_insert(_C##_t *vec, _C##_pos_t pos, _T val); \
@@ -146,23 +146,18 @@ _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
     return data; \
 } \
 \
-_funcspecs _T *_##_C##_grow(struct _C *vec, size_t n) \
+_funcspecs _T *_##_C##_grow(struct _C *vec) \
 { \
-    assert(n > _gcl_vector_length(vec)); \
-\
     size_t max_cap = _C##_max_capacity(); \
-    size_t new_cap; \
+    size_t old_cap = _C##_capacity(vec); \
 \
-    if (n > max_cap) \
+    if (old_cap == max_cap) \
         return NULL; \
 \
-    new_cap = (size_t) (_gcl_vector_capacity(vec) * GCL_VECTOR_GROWTH_FACTOR); \
+    size_t new_cap = (size_t) (old_cap * GCL_VECTOR_GROWTH_FACTOR); \
 \
     if (new_cap > max_cap) \
         new_cap = max_cap; \
-\
-    if (new_cap < n) \
-        new_cap = n; \
 \
     return _##_C##_do_resize(vec, new_cap); \
 } \
@@ -206,7 +201,7 @@ _funcspecs _C##_pos_t _C##_insert(_C##_t *vec, _C##_pos_t pos, _T val) \
 \
     if (_gcl_vector_capacity(vec) <= _gcl_vector_length(vec)) { \
         size_t i = _##_C##_index_of_pos(vec, pos); \
-        if (!_##_C##_grow(vec, _gcl_vector_length(vec) + 1)) { \
+        if (!_##_C##_grow(vec)) { \
             GCL_ERROR(0, "Increasing vector capacity failed"); \
             return NULL; \
         } \
@@ -226,7 +221,7 @@ _funcspecs _C##_pos_t _C##_insert(_C##_t *vec, _C##_pos_t pos, _T val) \
 _funcspecs _C##_pos_t _C##_insert_back(_C##_t *vec, _T val) \
 { \
     if (_gcl_vector_capacity(vec) <= _gcl_vector_length(vec)) { \
-        if (!_##_C##_grow(vec, _gcl_vector_length(vec) + 1)) { \
+        if (!_##_C##_grow(vec)) { \
             GCL_ERROR(0, "Increasing vector capacity failed"); \
             return NULL; \
         } \
