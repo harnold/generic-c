@@ -296,7 +296,7 @@ _funcspecs size_t _C##_length(_C##_t *vec) \
 \
 _funcspecs bool _C##_empty(_C##_t *vec) \
 { \
-    return _C##_length(vec) == 0; \
+    return vec->data == vec->end; \
 } \
 \
 _funcspecs size_t _C##_capacity(_C##_t *vec) \
