@@ -657,7 +657,7 @@ _funcspecs void _C##_remove_front(_C##_t *buf) \
 _funcspecs void _C##_remove_back(_C##_t *buf) \
 { \
     assert(!_C##_empty(buf)); \
-    _C##_remove(buf, _C##_end(buf)); \
+    _C##_remove(buf, _##_C##_pos(buf, _##_C##_ptr_sub(buf, buf->end, 1))); \
 }
 
 #endif
