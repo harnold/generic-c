@@ -121,16 +121,16 @@ _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
 { \
     assert(n >= _C##_length(vec) && n <= _C##_max_capacity()); \
 \
-    size_t length = _C##_length(vec); \
-    _T *data; \
-\
     if (n < GCL_VECTOR_MINIMAL_CAPACITY) \
         n = GCL_VECTOR_MINIMAL_CAPACITY; \
 \
     if (n == _C##_capacity(vec)) \
         return vec->data; \
 \
-    if (!(data = realloc(vec->data, n * sizeof(_T)))) { \
+    size_t length = _C##_length(vec); \
+    _T *data = realloc(vec->data, n * sizeof(_T)); \
+\
+    if (!data) { \
         GCL_ERROR(errno, "Reallocating memory for vector failed"); \
         return NULL; \
     } \
@@ -138,6 +138,7 @@ _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
     vec->data = data; \
     vec->data_end = data + n; \
     vec->end = data + length; \
+\
     return data; \
 } \
 \
@@ -159,12 +160,12 @@ _funcspecs _T *_##_C##_grow(struct _C *vec) \
 \
 _funcspecs _T *init_##_C(struct _C *vec, size_t n, void (*destroy_elem)(_T)) \
 { \
-    _T *data; \
-\
     if (n < GCL_VECTOR_INITIAL_CAPACITY) \
         n = GCL_VECTOR_INITIAL_CAPACITY; \
 \
-    if (!(data = malloc(n * sizeof(_T)))) { \
+    _T *data = malloc(n * sizeof(_T)); \
+\
+    if (!data) { \
         GCL_ERROR(errno, "Allocating memory for vector failed"); \
         return NULL; \
     } \
@@ -175,6 +176,7 @@ _funcspecs _T *init_##_C(struct _C *vec, size_t n, void (*destroy_elem)(_T)) \
         .end = data, \
         .destroy_elem = destroy_elem \
     }; \
+\
     return data; \
 } \
 \
