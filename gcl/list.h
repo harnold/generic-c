@@ -8,9 +8,10 @@
 #ifndef GCL_LIST_H
 #define GCL_LIST_H
 
+#include <gcl/malloc.h>
+
 #include <assert.h>
 #include <stdbool.h>
-#include <stdlib.h>
 
 #ifndef GCL_ERROR
 #define GCL_ERROR(errnum, ...)
@@ -139,7 +140,7 @@ _funcspecs void destroy_##_C(struct _C *list) \
 \
 _funcspecs _C##_pos_t _C##_insert(_C##_t *list, _C##_pos_t pos, _T val) \
 { \
-    struct _C##_node *node = malloc(sizeof(*node)); \
+    struct _C##_node *node = gcl_malloc(sizeof(*node)); \
 \
     if (!node) { \
         GCL_ERROR(errno, "Allocating memory for list node failed"); \

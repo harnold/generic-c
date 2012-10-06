@@ -12,12 +12,13 @@
 #define GCL_ERROR(errnum, ...)
 #endif
 
+#include <gcl/malloc.h>
+
 #include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define GCL_RINGBUF_MINIMAL_CAPACITY    (15)
@@ -173,7 +174,7 @@ _funcspecs _T *_##_C##_do_resize_shrink(struct _C *buf, size_t n) \
         begin = (size_t) (new_begin - buf->data); \
     } \
 \
-    _T *data = realloc(buf->data, (n + 1) * sizeof(_T)); \
+    _T *data = gcl_realloc(buf->data, (n + 1) * sizeof(_T)); \
 \
     if (!data) { \
         GCL_ERROR(errno, "Reallocating memory for ring buffer failed"); \
@@ -202,7 +203,7 @@ _funcspecs _T *_##_C##_do_resize_grow(struct _C *buf, size_t n) \
     size_t begin = (size_t) (buf->begin - buf->data); \
     size_t end = (size_t) (buf->end - buf->data); \
 \
-    _T *data = realloc(buf->data, (n + 1) * sizeof(_T)); \
+    _T *data = gcl_realloc(buf->data, (n + 1) * sizeof(_T)); \
 \
     if (!data) { \
         GCL_ERROR(errno, "Reallocating memory for ring buffer failed"); \
@@ -254,7 +255,7 @@ _funcspecs _T *init__C(struct _C *buf, size_t n, void (*destroy_elem)(_T)) \
     if (n < GCL_RINGBUF_INITIAL_CAPACITY) \
         n = GCL_RINGBUF_INITIAL_CAPACITY; \
 \
-    _T *data = malloc((n + 1) * sizeof(_T)); \
+    _T *data = gcl_malloc((n + 1) * sizeof(_T)); \
 \
     if (!data) { \
         GCL_ERROR(errno, "Allocating memory for ring buffer failed"); \
