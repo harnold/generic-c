@@ -13,10 +13,6 @@
 #include <assert.h>
 #include <stdbool.h>
 
-#ifndef GCL_ERROR
-#define GCL_ERROR(errnum, ...)
-#endif
-
 #define _gcl_list_begin(list)           ((list)->end.next)
 #define _gcl_list_end(list)             (&(list)->end)
 
@@ -141,11 +137,6 @@ _funcspecs void destroy_##_C(struct _C *list) \
 _funcspecs _C##_pos_t _C##_insert(_C##_t *list, _C##_pos_t pos, _T val) \
 { \
     struct _C##_node *node = gcl_malloc(sizeof(*node)); \
-\
-    if (!node) { \
-        GCL_ERROR(errno, "Allocating memory for list node failed"); \
-        return NULL; \
-    } \
 \
     node->elem = val; \
     _C##_link_nodes(pos->prev, node); \

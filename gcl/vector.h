@@ -8,14 +8,9 @@
 #ifndef GCL_VECTOR_H
 #define GCL_VECTOR_H
 
-#ifndef GCL_ERROR
-#define GCL_ERROR(errnum, ...)
-#endif
-
 #include <gcl/malloc.h>
 
 #include <assert.h>
-#include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -131,11 +126,6 @@ _funcspecs _T *_##_C##_do_resize(struct _C *vec, size_t n) \
     size_t length = _C##_length(vec); \
     _T *data = gcl_realloc(vec->data, n * sizeof(_T)); \
 \
-    if (!data) { \
-        GCL_ERROR(errno, "Reallocating memory for vector failed"); \
-        return NULL; \
-    } \
-\
     vec->data = data; \
     vec->data_end = data + n; \
     vec->end = data + length; \
@@ -166,11 +156,6 @@ _funcspecs _T *init_##_C(struct _C *vec, size_t n, void (*destroy_elem)(_T)) \
 \
     _T *data = gcl_malloc(n * sizeof(_T)); \
 \
-    if (!data) { \
-        GCL_ERROR(errno, "Allocating memory for vector failed"); \
-        return NULL; \
-    } \
-\
     *vec = (struct _C) { \
         .data = data, \
         .data_end = data + n, \
@@ -199,10 +184,7 @@ _funcspecs _C##_pos_t _C##_insert(_C##_t *vec, _C##_pos_t pos, _T val) \
 \
     if (_C##_capacity(vec) <= _C##_length(vec)) { \
         size_t i = _##_C##_index_of_pos(vec, pos); \
-        if (!_##_C##_grow(vec)) { \
-            GCL_ERROR(0, "Increasing vector capacity failed"); \
-            return NULL; \
-        } \
+        _##_C##_grow(vec); \
         pos = _##_C##_pos_of_index(vec, i); \
     } \
 \
@@ -218,12 +200,8 @@ _funcspecs _C##_pos_t _C##_insert(_C##_t *vec, _C##_pos_t pos, _T val) \
 \
 _funcspecs _C##_pos_t _C##_insert_back(_C##_t *vec, _T val) \
 { \
-    if (_C##_capacity(vec) <= _C##_length(vec)) { \
-        if (!_##_C##_grow(vec)) { \
-            GCL_ERROR(0, "Increasing vector capacity failed"); \
-            return NULL; \
-        } \
-    } \
+    if (_C##_capacity(vec) <= _C##_length(vec)) \
+        _##_C##_grow(vec); \
 \
     assert(_C##_capacity(vec) > _C##_length(vec)); \
 \

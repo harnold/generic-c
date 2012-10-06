@@ -8,14 +8,9 @@
 #ifndef GCL_RINGBUF_H
 #define GCL_RINGBUF_H
 
-#ifndef GCL_ERROR
-#define GCL_ERROR(errnum, ...)
-#endif
-
 #include <gcl/malloc.h>
 
 #include <assert.h>
-#include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -176,11 +171,6 @@ _funcspecs _T *_##_C##_do_resize_shrink(struct _C *buf, size_t n) \
 \
     _T *data = gcl_realloc(buf->data, (n + 1) * sizeof(_T)); \
 \
-    if (!data) { \
-        GCL_ERROR(errno, "Reallocating memory for ring buffer failed"); \
-        return NULL; \
-    } \
-\
     buf->data = data; \
     buf->data_end = data + (n + 1); \
     buf->begin = data + begin; \
@@ -204,11 +194,6 @@ _funcspecs _T *_##_C##_do_resize_grow(struct _C *buf, size_t n) \
     size_t end = (size_t) (buf->end - buf->data); \
 \
     _T *data = gcl_realloc(buf->data, (n + 1) * sizeof(_T)); \
-\
-    if (!data) { \
-        GCL_ERROR(errno, "Reallocating memory for ring buffer failed"); \
-        return NULL; \
-    } \
 \
     if (!_##_C##_contiguous(buf)) { \
 \
@@ -257,11 +242,6 @@ _funcspecs _T *init__C(struct _C *buf, size_t n, void (*destroy_elem)(_T)) \
 \
     _T *data = gcl_malloc((n + 1) * sizeof(_T)); \
 \
-    if (!data) { \
-        GCL_ERROR(errno, "Allocating memory for ring buffer failed"); \
-        return NULL; \
-    } \
-\
     *buf = (struct _C) { \
         .data = data, \
         .data_end = data + n, \
@@ -291,10 +271,7 @@ _funcspecs _C##_pos_t _C##_insert(_C##_t *buf, _C##_pos_t pos, _T val) \
 \
     if (_##_C##_full(buf)) { \
         size_t i = _##_C##_index_of_ptr(buf, pos.ptr); \
-        if (!_##_C##_grow(buf)) { \
-            GCL_ERROR(0, "Increasing ring buffer capacity failed"); \
-            return _##_C##_pos(buf, NULL); \
-        } \
+        _##_C##_grow(buf); \
         pos.ptr = _##_C##_ptr_of_index(buf, i); \
     } \
 \
@@ -319,12 +296,8 @@ _funcspecs _C##_pos_t _C##_insert(_C##_t *buf, _C##_pos_t pos, _T val) \
 \
 _funcspecs _C##_pos_t _C##_insert_front(_C##_t *buf, _T val) \
 { \
-    if (_##_C##_full(buf)) { \
-        if (!_##_C##_grow(buf)) { \
-            GCL_ERROR(0, "Increasing ring buffer capacity failed"); \
-            return _##_C##_pos(buf, NULL); \
-        } \
-    } \
+    if (_##_C##_full(buf)) \
+        _##_C##_grow(buf); \
 \
     assert(_C##_capacity(buf) > _C##_length(buf)); \
 \
@@ -335,12 +308,8 @@ _funcspecs _C##_pos_t _C##_insert_front(_C##_t *buf, _T val) \
 \
 _funcspecs _C##_pos_t _C##_insert_back(_C##_t *buf, _T val) \
 { \
-    if (_##_C##_full(buf)) { \
-        if (!_##_C##_grow(buf)) { \
-            GCL_ERROR(0, "Increasing ring buffer capacity failed"); \
-            return _##_C##_pos(buf, NULL); \
-        } \
-    } \
+    if (_##_C##_full(buf)) \
+        _##_C##_grow(buf); \
 \
     assert(_C##_capacity(buf) > _C##_length(buf)); \
 \
