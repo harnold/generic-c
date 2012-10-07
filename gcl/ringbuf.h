@@ -135,15 +135,6 @@ _funcspecs void _C##_remove_back(_C##_t *buf);
 
 #define GCL_GENERATE_RINGBUF_LONG_FUNCTION_DEFS(_C, _T, _funcspecs) \
 \
-_funcspecs bool _##_C##_valid_ptr(const struct _C *buf, _T *ptr) \
-{ \
-    if (_##_C##_contiguous(buf)) \
-        return ptr >= buf->begin && ptr <= buf->end; \
-    else \
-        return (ptr >= buf->begin && ptr < buf->data_end) \
-            || (ptr >= buf->data && ptr <= buf->end); \
-} \
-\
 _funcspecs _T *_##_C##_do_resize_shrink(struct _C *buf, size_t n) \
 { \
     assert(n >= _C##_length(buf) && n <= _C##_capacity(buf)); \
@@ -403,6 +394,15 @@ _funcspecs _T *_##_C##_ptr_sub(struct _C *buf, _T *ptr, ptrdiff_t offset) \
 _funcspecs bool _##_C##_valid_index(const struct _C *buf, size_t i) \
 { \
     return i < _C##_length(buf); \
+} \
+\
+_funcspecs bool _##_C##_valid_ptr(const struct _C *buf, _T *ptr) \
+{ \
+    if (_##_C##_contiguous(buf)) \
+        return ptr >= buf->begin && ptr <= buf->end; \
+    else \
+        return (ptr >= buf->begin && ptr < buf->data_end) \
+            || (ptr >= buf->data && ptr <= buf->end); \
 } \
 \
 _funcspecs bool _##_C##_valid_pos(const struct _C *buf, struct _C##_pos pos) \
