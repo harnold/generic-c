@@ -90,26 +90,26 @@ _funcspecs void _##_C##_ptr_inc(struct _C *buf, _T **ptr); \
 _funcspecs void _##_C##_ptr_dec(struct _C *buf, _T **ptr); \
 _funcspecs _T *_##_C##_ptr_add(struct _C *buf, _T *ptr, ptrdiff_t offset); \
 _funcspecs _T *_##_C##_ptr_sub(struct _C *buf, _T *ptr, ptrdiff_t offset); \
-_funcspecs bool _##_C##_valid_index(struct _C *buf, size_t i); \
-_funcspecs bool _##_C##_valid_ptr(struct _C *buf, _T *ptr); \
-_funcspecs bool _##_C##_valid_pos(struct _C *buf, struct _C##_pos pos); \
-_funcspecs bool _##_C##_ptr_in_left_part(struct _C *buf, _T *ptr); \
-_funcspecs bool _##_C##_ptr_in_right_part(struct _C *buf, _T *ptr); \
+_funcspecs bool _##_C##_valid_index(const struct _C *buf, size_t i); \
+_funcspecs bool _##_C##_valid_ptr(const struct _C *buf, _T *ptr); \
+_funcspecs bool _##_C##_valid_pos(const struct _C *buf, struct _C##_pos pos); \
+_funcspecs bool _##_C##_ptr_in_left_part(const struct _C *buf, _T *ptr); \
+_funcspecs bool _##_C##_ptr_in_right_part(const struct _C *buf, _T *ptr); \
 _funcspecs _T *_##_C##_ptr_of_index(struct _C *buf, size_t i); \
-_funcspecs size_t _##_C##_index_of_ptr(struct _C *buf, _T *ptr); \
-_funcspecs bool _##_C##_contiguous(struct _C *buf); \
-_funcspecs bool _##_C##_full(struct _C *buf); \
+_funcspecs size_t _##_C##_index_of_ptr(const struct _C *buf, _T *ptr); \
+_funcspecs bool _##_C##_contiguous(const struct _C *buf); \
+_funcspecs bool _##_C##_full(const struct _C *buf); \
 _funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest); \
-_funcspecs size_t _C##_length(_C##_t *buf); \
-_funcspecs bool _C##_empty(_C##_t *buf); \
-_funcspecs size_t _C##_capacity(_C##_t *buf); \
+_funcspecs size_t _C##_length(const _C##_t *buf); \
+_funcspecs bool _C##_empty(const _C##_t *buf); \
+_funcspecs size_t _C##_capacity(const _C##_t *buf); \
 _funcspecs size_t _C##_max_capacity(void); \
 _funcspecs _T *_C##_reserve(_C##_t *buf, size_t n); \
 _funcspecs _T *_C##_shrink(_C##_t *buf); \
 _funcspecs _C##_pos_t _C##_begin(_C##_t *buf); \
 _funcspecs _C##_pos_t _C##_end(_C##_t *buf); \
-_funcspecs bool _C##_at_begin(_C##_t *buf, _C##_pos_t pos); \
-_funcspecs bool _C##_at_end(_C##_t *buf, _C##_pos_t pos); \
+_funcspecs bool _C##_at_begin(const _C##_t *buf, _C##_pos_t pos); \
+_funcspecs bool _C##_at_end(const _C##_t *buf, _C##_pos_t pos); \
 _funcspecs _C##_pos_t _C##_next(_C##_pos_t pos); \
 _funcspecs _C##_pos_t _C##_prev(_C##_pos_t pos); \
 _funcspecs void _C##_forward(_C##_pos_t *pos); \
@@ -124,9 +124,9 @@ _funcspecs _C##_range_t _C##_range_from_pos(_C##_t *buf, _C##_pos_t pos); \
 _funcspecs _C##_range_t _C##_range_to_pos(_C##_t *buf, _C##_pos_t pos); \
 _funcspecs size_t _C##_range_length(_C##_range_t range); \
 _funcspecs bool _C##_range_empty(_C##_range_t range); \
-_funcspecs _T _C##_front(_C##_t *buf); \
-_funcspecs _T _C##_back(_C##_t *buf); \
-_funcspecs _T _C##_at(_C##_t *buf, size_t i); \
+_funcspecs _T _C##_front(const _C##_t *buf); \
+_funcspecs _T _C##_back(const _C##_t *buf); \
+_funcspecs _T _C##_at(const _C##_t *buf, size_t i); \
 _funcspecs _T _C##_get(_C##_pos_t pos); \
 _funcspecs _T *_C##_get_ptr(_C##_pos_t pos); \
 _funcspecs void _C##_set(_C##_pos_t pos, _T val); \
@@ -135,7 +135,7 @@ _funcspecs void _C##_remove_back(_C##_t *buf);
 
 #define GCL_GENERATE_RINGBUF_LONG_FUNCTION_DEFS(_C, _T, _funcspecs) \
 \
-_funcspecs bool _##_C##_valid_ptr(struct _C *buf, _T *ptr) \
+_funcspecs bool _##_C##_valid_ptr(const struct _C *buf, _T *ptr) \
 { \
     if (_##_C##_contiguous(buf)) \
         return ptr >= buf->begin && ptr <= buf->end; \
@@ -400,29 +400,29 @@ _funcspecs _T *_##_C##_ptr_sub(struct _C *buf, _T *ptr, ptrdiff_t offset) \
                   offset); \
 } \
 \
-_funcspecs bool _##_C##_valid_index(struct _C *buf, size_t i) \
+_funcspecs bool _##_C##_valid_index(const struct _C *buf, size_t i) \
 { \
     return i < _C##_length(buf); \
 } \
 \
-_funcspecs bool _##_C##_valid_pos(struct _C *buf, struct _C##_pos pos) \
+_funcspecs bool _##_C##_valid_pos(const struct _C *buf, struct _C##_pos pos) \
 { \
     return pos.buf == buf && _##_C##_valid_ptr(buf, pos.ptr); \
 } \
 \
-_funcspecs bool _##_C##_ptr_in_left_part(struct _C *buf, _T *ptr) \
+_funcspecs bool _##_C##_ptr_in_left_part(const struct _C *buf, _T *ptr) \
 { \
     assert(_##_C##_valid_ptr(buf, ptr) && !_##_C##_contiguous(buf)); \
     return ptr >= buf->data && ptr <= buf->end; \
 } \
 \
-_funcspecs bool _##_C##_ptr_in_right_part(struct _C *buf, _T *ptr) \
+_funcspecs bool _##_C##_ptr_in_right_part(const struct _C *buf, _T *ptr) \
 { \
     assert(_##_C##_valid_ptr(buf, ptr) && !_##_C##_contiguous(buf)); \
     return ptr >= buf->begin && ptr <= buf->data_end; \
 } \
 \
-_funcspecs size_t _##_C##_index_of_ptr(struct _C *buf, _T *ptr) \
+_funcspecs size_t _##_C##_index_of_ptr(const struct _C *buf, _T *ptr) \
 { \
     assert(_##_C##_valid_ptr(buf, ptr) && ptr != buf->end); \
     return _##_C##_contiguous(buf) || _##_C##_ptr_in_right_part(buf, ptr) ? \
@@ -436,12 +436,12 @@ _funcspecs _T *_##_C##_ptr_of_index(struct _C *buf, size_t i) \
     return _##_C##_ptr_add(buf, buf->begin, i); \
 } \
 \
-_funcspecs bool _##_C##_contiguous(struct _C *buf) \
+_funcspecs bool _##_C##_contiguous(const struct _C *buf) \
 { \
     return buf->end - buf->begin >= 0; \
 } \
 \
-_funcspecs bool _##_C##_full(struct _C *buf) \
+_funcspecs bool _##_C##_full(const struct _C *buf) \
 { \
     ptrdiff_t d = buf->end - buf->begin; \
     return (d >= 0 && d == _C##_capacity(buf) - 1) || d == -1; \
@@ -453,19 +453,19 @@ _funcspecs void _##_C##_move_data(_T *begin, _T *end, _T *dest) \
         memmove(dest, begin, (end - begin) * sizeof(_T)); \
 } \
 \
-_funcspecs size_t _C##_length(_C##_t *buf) \
+_funcspecs size_t _C##_length(const _C##_t *buf) \
 { \
     return _##_C##_contiguous(buf) ? \
         (buf->end - buf->begin) : \
         (buf->end - buf->begin) + (buf->data_end - buf->data); \
 } \
 \
-_funcspecs bool _C##_empty(_C##_t *buf) \
+_funcspecs bool _C##_empty(const _C##_t *buf) \
 { \
     return buf->begin == buf->end; \
 } \
 \
-_funcspecs size_t _C##_capacity(_C##_t *buf) \
+_funcspecs size_t _C##_capacity(const _C##_t *buf) \
 { \
     return buf->data_end - buf->data - 1; \
 } \
@@ -500,12 +500,12 @@ _funcspecs _C##_pos_t _C##_end(_C##_t *buf) \
     return _##_C##_pos(buf, buf->end); \
 } \
 \
-_funcspecs bool _C##_at_begin(_C##_t *buf, _C##_pos_t pos) \
+_funcspecs bool _C##_at_begin(const _C##_t *buf, _C##_pos_t pos) \
 { \
     return pos.ptr == buf->begin; \
 } \
 \
-_funcspecs bool _C##_at_end(_C##_t *buf, _C##_pos_t pos) \
+_funcspecs bool _C##_at_end(const _C##_t *buf, _C##_pos_t pos) \
 { \
     return pos.ptr == buf->end; \
 } \
@@ -585,22 +585,22 @@ _funcspecs bool _C##_range_empty(_C##_range_t range) \
     return range.begin == range.end; \
 } \
 \
-_funcspecs _T _C##_front(_C##_t *buf) \
+_funcspecs _T _C##_front(const _C##_t *buf) \
 { \
     assert(!_C##_empty(buf)); \
     return *buf->begin; \
 } \
 \
-_funcspecs _T _C##_back(_C##_t *buf) \
+_funcspecs _T _C##_back(const _C##_t *buf) \
 { \
     assert(!_C##_empty(buf)); \
-    return *_##_C##_ptr_sub(buf, buf->end, 1); \
+    return *_##_C##_ptr_sub((_C##_t *) buf, buf->end, 1); \
 } \
 \
-_funcspecs _T _C##_at(_C##_t *buf, size_t i) \
+_funcspecs _T _C##_at(const _C##_t *buf, size_t i) \
 { \
     assert(_##_C##_valid_index(buf, i)); \
-    return *_##_C##_ptr_add(buf, buf->begin, i); \
+    return *_##_C##_ptr_add((_C##_t *) buf, buf->begin, i); \
 } \
 \
 _funcspecs _T _C##_get(_C##_pos_t pos) \
