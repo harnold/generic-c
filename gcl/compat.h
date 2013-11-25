@@ -32,7 +32,7 @@
 
 #endif
 
-/* C99 features not supported by all compilers. */
+/* C11 features not supported by all compilers. */
 
 #if !_GCL_HAS_FEATURE_STATIC_ASSERT
 #define _Static_assert(cond, msg) \
