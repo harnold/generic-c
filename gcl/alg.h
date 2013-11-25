@@ -1,10 +1,3 @@
-/*
- * Copyright 2012 Holger Arnold.
- *
- * Licensed under a modified BSD license.
- * See the accompanying LICENSE file for details.
- */
-
 #ifndef GCL_ALG_H
 #define GCL_ALG_H
 
