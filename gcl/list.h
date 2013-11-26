@@ -23,6 +23,11 @@ typedef struct _C##_node *_C##_pos_t; \
 typedef struct _C##_range _C##_range_t; \
 typedef _T _C##_elem_t; \
 \
+struct _C##_node_base { \
+	struct _C##_node *next; \
+	struct _C##_node *prev; \
+}; \
+\
 struct _C##_node { \
 	struct _C##_node *next; \
 	struct _C##_node *prev; \
@@ -35,7 +40,7 @@ struct _C##_range { \
 }; \
 \
 struct _C { \
-	struct _C##_node end; \
+	struct _C##_node_base end; \
 	void (*destroy_elem)(_T); \
 };
 
@@ -106,7 +111,10 @@ _funcspecs void _C##_splice_back(_C##_t *dest_list, _C##_t *src_list, _C##_range
 _funcspecs void init_##_C(struct _C *list, void (*destroy_elem)(_T)) \
 { \
 	*list = (struct _C) { \
-		.end = { .next = &list->end, .prev = &list->end }, \
+		.end = { \
+			.next = (struct _C##_node *) &list->end, \
+			.prev = (struct _C##_node *) &list->end  \
+		}, \
 		.destroy_elem = destroy_elem \
 	}; \
 } \
@@ -210,7 +218,7 @@ _funcspecs _C##_pos_t _C##_begin(_C##_t *list) \
 \
 _funcspecs _C##_pos_t _C##_end(_C##_t *list) \
 { \
-	return &list->end; \
+	return (struct _C##_node *) &list->end; \
 } \
 \
 _funcspecs bool _C##_at_begin(_C##_t *list, _C##_pos_t pos) \
