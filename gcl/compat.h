@@ -44,8 +44,9 @@
 
 #if !_GCL_HAS_FEATURE_STATIC_ASSERT
 #define _Static_assert(cond, msg) \
-	((void) sizeof(struct { int __static_assert_failure: (cond) ? 1 : -1; }))
-#endif
+	typedef struct { \
+		int __static_assert_failure: (cond) ? 1 : -1; \
+	} __unique_identifier(__static_assert_);
 
 #ifndef static_assert
 #define static_assert _Static_assert
