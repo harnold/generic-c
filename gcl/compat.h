@@ -32,6 +32,14 @@
 
 #endif
 
+/* Macros for creating identifiers that are unique per translation unit */
+
+#ifndef __unique_identifier
+#define __concat1(a, b)			a##b
+#define __concat(a, b)			__concat1(a, b)
+#define __unique_identifier(prefix)	__concat(prefix, __LINE__)
+#endif
+
 /* C11 features not supported by all compilers. */
 
 #if !_GCL_HAS_FEATURE_STATIC_ASSERT
