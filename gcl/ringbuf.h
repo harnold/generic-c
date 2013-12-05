@@ -66,8 +66,8 @@ struct _C { \
 _funcspecs _T *_##_C##_do_resize_shrink(struct _C *buf, size_t n); \
 _funcspecs _T *_##_C##_do_resize_grow(struct _C *buf, size_t n); \
 _funcspecs _T *_##_C##_grow(struct _C *buf); \
-_funcspecs _T *init__C(struct _C *buf, size_t n, void (*destroy_elem)(_T)); \
-_funcspecs void destroy__C(struct _C *buf); \
+_funcspecs _T *init_##_C(struct _C *buf, size_t n, void (*destroy_elem)(_T)); \
+_funcspecs void destroy_##_C(struct _C *buf); \
 _funcspecs _C##_pos_t _C##_insert(_C##_t *buf, _C##_pos_t pos, _T val); \
 _funcspecs _C##_pos_t _C##_insert_front(_C##_t *buf, _T val); \
 _funcspecs _C##_pos_t _C##_insert_back(_C##_t *buf, _T val); \
@@ -219,7 +219,7 @@ _funcspecs _T *_##_C##_grow(struct _C *buf) \
 	return _##_C##_do_resize_grow(buf, new_cap); \
 } \
 \
-_funcspecs _T *init__C(struct _C *buf, size_t n, void (*destroy_elem)(_T)) \
+_funcspecs _T *init_##_C(struct _C *buf, size_t n, void (*destroy_elem)(_T)) \
 { \
 	if (n < GCL_RINGBUF_INITIAL_CAPACITY) \
 		n = GCL_RINGBUF_INITIAL_CAPACITY; \
@@ -237,7 +237,7 @@ _funcspecs _T *init__C(struct _C *buf, size_t n, void (*destroy_elem)(_T)) \
 	return data; \
 } \
 \
-_funcspecs void destroy__C(struct _C *buf) \
+_funcspecs void destroy_##_C(struct _C *buf) \
 { \
 	_T *ptr; \
 \
